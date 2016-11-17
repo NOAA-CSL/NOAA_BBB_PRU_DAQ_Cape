@@ -229,9 +229,11 @@ The UARTS show up as /dev/ttyO1 and ttyO2 and the analog in as /dev/uio0..7.
 PRU compile and decompile:
 
 dtc compile:
+
     dtc -O dtb -o {name}-00A0.dtbo -b 0 -@ {name}.dts
 
 dtc decompile:
+
     dtc -O dts -I dtb -o {name}.dts {name}-00A0.dtbo
 
 

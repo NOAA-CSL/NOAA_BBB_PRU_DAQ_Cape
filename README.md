@@ -1,5 +1,4 @@
 # NOAA_BBB_PRU_DAQ_Cape
-NOAA_BBB_PRU_DAQ_Cape
 
 <p>This cape was developed for the NOAA Printed Optical Particle Spectrometer (POPS) instrument that 
 is used to make balloon and aircraft particle concentration measurements.  It has been patented and 
