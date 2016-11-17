@@ -1,0 +1,28 @@
+#!/bin/bash
+apt-get install -y tree
+apt-get install -y ntp
+apt-get install -y minicom
+cd /usr/lib
+echo "Changed directory"
+git clone https://github.com/hyperrealm/libconfig
+cd libconfig
+echo "Changed directory"
+apt-get install automake
+apt-get install autoconf
+apt-get install -y perl
+apt-get install bison
+apt-get install flex
+apt-get install libtool
+apt-get install texinfo
+apt-get update
+autoreconf --force --install
+./configure
+make
+make install
+echo "Packages Installed!"
+cd /usr/local/lib
+echo "Changed directory"
+cp lib* /usr/lib
+echo "Copied libconfig to /usr/lib"
+echo "REBOOTING"
+shutdown -r now

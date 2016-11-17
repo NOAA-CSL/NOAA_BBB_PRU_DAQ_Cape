@@ -1,0 +1,86 @@
+/*
+* Copyright (C) 2013 Pantelis Antoniou <panto@antoniou-consulting.com>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 as
+* published by the Free Software Foundation.
+* Modified by Laurel Watts, NOAA for input to all pins.
+*/
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+	/* identification */
+	part-number = "NOAA-PRUA";
+	version = "00A0";
+
+	/* state the resources this cape uses */
+	exclusive-use =
+		/* the pin header uses */
+		"P9.27",	/* pru0: pr1_pru0_pru_r31_5 */
+		"P9.25",	/* pru0: pr1_pru0_pru_r31_7 */
+		"P9.41",	/* pru0: pr1_pru0_pru_r31_6 */
+		"P9.42",	/* pru0: pr1_pru0_pru_r31_4 */
+		"P9.28",	/* pru0: pr1_pru0_pru_r31_3 */
+		"P9.30",	/* pru0: pr1_pru0_pru_r31_2 */
+		"P9.29",	/* pru0: pr1_pru0_pru_r31_1 */
+		"P9.31",	/* pru0: pr1_pru0_pru_r31_0 */
+
+		"P8.27",	/* pru1: pr1_pru1_pru_r31_8 */
+		"P8.28",	/* pru1: pr1_pru1_pru_r31_10 */
+		"P8.29",	/* pru1: pr1_pru1_pru_r31_9 */
+		"P8.30",	/* pru1: pr1_pru1_pru_r31_11 */
+		"P8.39",	/* pru1: pr1_pru1_pru_r31_6 */
+		"P8.40",	/* pru1: pr1_pru1_pru_r31_7 */
+		"P8.41",	/* pru1: pr1_pru1_pru_r31_4 */
+		"P8.42",	/* pru1: pr1_pru1_pru_r31_5 */
+		"P8.43",	/* pru1: pr1_pru1_pru_r31_2 */
+		"P8.44",	/* pru1: pr1_pru1_pru_r31_3 */
+		"P8.45",	/* pru1: pr1_pru1_pru_r31_0 */
+		"P8.46",	/* pru1: pr1_pru1_pru_r31_1 */
+		/* the hardware IP uses */
+		"pru0",
+		"pru1";
+
+	fragment@0 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+			pru_pru_pins: pinmux_pru_pru_pins {
+				pinctrl-single,pins = <
+					0x1a4 0x26	/* pr1_pru0_pru_r31_5, MODE6 | INPUT | PRU */
+					0x1ac 0x26	/* pr1_pru0_pru_r31_7, MODE6 | INPUT | PRU */
+					0x1a8 0x26	/* pr1_pru0_pru_r31_6, MODE6 | INPUT | PRU */
+					0x1a0 0x26	/* pr1_pru0_pru_r31_4, MODE6 | INPUT | PRU */
+					0x19c 0x26	/* pr1_pru0_pru_r31_3, MODE6 | INPUT | PRU */
+					0x198 0x26	/* pr1_pru0_pru_r31_2, MODE6 | INPUT | PRU */
+					0x194 0x26	/* pr1_pru0_pru_r31_1, MODE6 | INPUT | PRU */
+					0x190 0x26	/* pr1_pru0_pru_r31_0, MODE6 | INPUT | PRU */
+
+					0x0e0 0x26	/* pr1_pru1_pru_r31_8, MODE6 | INPUT | PRU */
+					0x0e8 0x26	/* pr1_pru1_pru_r31_10, MODE6 | INPUT | PRU */
+					0x0e4 0x26	/* pr1_pru1_pru_r31_9, MODE6 | INPUT | PRU */
+					0x0ec 0x26	/* pr1_pru1_pru_r31_11, MODE6 | INPUT | PRU */
+					0x0bc 0x26	/* pr1_pru1_pru_r31_7, MODE6 | INPUT | PRU */
+					0x0b8 0x26	/* pr1_pru1_pru_r31_6, MODE6 | INPUT | PRU */
+					0x0b0 0x26	/* pr1_pru1_pru_r31_4, MODE6 | INPUT | PRU */
+					0x0b4 0x26	/* pr1_pru1_pru_r31_5, MODE6 | INPUT | PRU */
+					0x0ac 0x26	/* pr1_pru1_pru_r31_3, MODE6 | INPUT | PRU */
+					0x0a8 0x26	/* pr1_pru1_pru_r31_2, MODE6 | INPUT | PRU */
+					0x0a0 0x26	/* pr1_pru1_pru_r31_0, MODE6 | INPUT | PRU */
+					0x0a4 0x26	/* pr1_pru1_pru_r31_1, MODE6 | INPUT | PRU */
+				>;
+			};
+		};
+	};
+
+  fragment@1 {         // Enable the PRUSS
+      target = <&pruss>;
+      __overlay__ {
+         status = "okay";
+         pinctrl-names = "default";
+         pinctrl-0 = <&pru_pru_pins>;
+      };
+   };
+};
