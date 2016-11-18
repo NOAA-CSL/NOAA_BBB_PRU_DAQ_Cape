@@ -185,7 +185,7 @@ where the libraries are:
 			                    	<linux/watchdog>
 
 **PRU Programming.**  For the 5/14/2014 version of Debian on the BeagleBone Black the NOAA device 
-tree files are copied to '/lib/firmware'.  This was done in one of the scrip '<Software_install_2>'.  
+tree files are copied to '/lib/firmware'.  This was done in one of the scrip Software_install_2.  
 Each instruction takes at least 5 ns to execute.  To enable the scratch pad between PRUs, the -V3 
 switch must be present in the compile command.  For instance:
 
