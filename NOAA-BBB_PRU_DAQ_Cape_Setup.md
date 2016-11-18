@@ -117,7 +117,7 @@ over the configuration file.
 
 **Build the pops software.**   From the '/var/lib/cloud9/POPS' directory execute the build with:
  
-    './build'
+    ./build
 
 If all is right, this will build both PRU binaries and the pops executable.
 
@@ -173,23 +173,23 @@ In this example UART1 is set to 9600 baud, and UART2 is set to 115200 baud.
 
 **C Compiler and Programming.** To compile a C program:
 
-        gcc {name}.c -o {name} -m -lrt -lconfig -lprussdrv -L. -liofunc
+    gcc {name}.c -o {name} -m -lrt -lconfig -lprussdrv -L. -liofunc
 
 where the libraries are:
 
-        math library 	-m		        <math.h>
-        time 		    -lrt		    <time.h>
-        libconfig 		-lconfig 		<libconfig.h>
-        prussdrv 		-lprussdrv  	<prussdrv.h> and <pruss_intc_mapping.h>
-        GPIO		    -L. -liofunc	"iolib.h"
-			                    	    <linux/watchdog>
+    math library 	-m		        <math.h>
+    time 		    -lrt		    <time.h>
+    libconfig 		-lconfig 		<libconfig.h>
+    prussdrv 		-lprussdrv  	<prussdrv.h> and <pruss_intc_mapping.h>
+    GPIO		    -L. -liofunc	"iolib.h"
+			                    	<linux/watchdog>
 
 **PRU Programming.**  For the 5/14/2014 version of Debian on the BeagleBone Black the NOAA device 
 tree files are copied to '/lib/firmware'.  This was done in one of the scrip '<Software_install_2>'.  
 Each instruction takes at least 5 ns to execute.  To enable the scratch pad between PRUs, the -V3 
 switch must be present in the compile command.  For instance:
 
-    'pasm -V3 -b PRU0_ParData.p'
+    pasm -V3 -b PRU0_ParData.p
 
 will produce a binary output that has the scratch pad enabled.
 
@@ -200,26 +200,24 @@ program in the background.
 
 rc.local file:
 
-        modprobe uio_pruss
-        echo cape-bone-iio > /sys/devices/bone_capemgr.9/slots
-        echo NOAA-UART1 > /sys/devices/bone_capemgr.9/slots
-        echo NOAA-UART2 > /sys/devices/bone_capemgr.9/slots
-        echo NOAA-PRUA > /sys/devices/bonecapemgr.9/slots (all PRU pins)
-        echo NOAA-GPIO > /sys/devices/bone_capemgr.9/slots
+    modprobe uio_pruss
+    echo cape-bone-iio > /sys/devices/bone_capemgr.9/slots
+    echo NOAA-UART1 > /sys/devices/bone_capemgr.9/slots
+    echo NOAA-UART2 > /sys/devices/bone_capemgr.9/slots
+    echo NOAA-PRUA > /sys/devices/bonecapemgr.9/slots (all PRU pins)
+    echo NOAA-GPIO > /sys/devices/bone_capemgr.9/slots
 
-        echo max5802w 0x0F > /sys/class/i2c-adapter/i2c-1/new_device
+    echo max5802w 0x0F > /sys/class/i2c-adapter/i2c-1/new_device
 
-        mount /dev/mmcblk0p1 /media/uSD
+    mount /dev/mmcblk0p1 /media/uSD
 
-        sleep 20
-        cd /var/lib/cloud9/POPS
-        /var/lib/cloud9/POPS/pops &			(runs pops in the background at boot)
+    sleep 20
+    cd /var/lib/cloud9/POPS
+    /var/lib/cloud9/POPS/pops &			(runs pops in the background at boot)
 
-        exit 0
+    exit 0
 
-											(the file must end with exit 0)
-
-Check that the slots loaded  with:
+The file must end with exit 0. Check that the slots loaded  with:
 
     cd /sys/devices/bone-capemgr.9
     cat slots 								(to make sure they all loaded right)
@@ -227,7 +225,7 @@ Check that the slots loaded  with:
     cd /dev
     ls
 
-The UARTS show up as /dev/ttyO1 and ttyO2 and the analog in as /dev/uio0..7.
+The UARTS show up as '/dev/ttyO1' and '/dev/ttyO2' and the analog in as '/dev/uio0..7'.
 
 PRU compile and decompile:
 
