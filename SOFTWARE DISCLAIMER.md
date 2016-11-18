@@ -1,12 +1,12 @@
-##NOAA BeagleBone Black PRU and DAQ Cape Software Disclaimer
+#NOAA BeagleBone Black PRU and DAQ Cape Software Disclaimer
 ---
 <p>The United States Government makes no warranty, expressed or implied, as to the usefulness of this 
 software and documentation for any purpose. The U.S. Government, its instrumentalities, officers, 
 employees, and agents assume no responsibility (1) for the use of the software and documentation 
 contained in this package, or (2) to provide technical support to users.
-
-#USE OF GOVERNMENT DATA, PRODUCTS, AND SOFTWARE
 ---
+##USE OF GOVERNMENT DATA, PRODUCTS, AND SOFTWARE
+
 <p>The information on government servers are in the public domain, unless specifically annotated 
 otherwise, and may be used without charge for any lawful purpose so long as you do not (1) claim it 
 is your own (e.g., by claiming copyright for government information), (2) use it in a manner that 
@@ -34,8 +34,8 @@ material obtained from the government must provide notice with such work(s) iden
 government material incorporated and stating that such material is not subject to copyright 
 protection.
 
-#USE OF THIRD-PARTY SOFTWARE AND INFORMATION
----
+##USE OF THIRD-PARTY SOFTWARE AND INFORMATION
+
 <p>Third-party information are used under license from the individual third-party provider. This 
 third-party information may contain trade names, trademarks, service marks, logos, domain names, 
 and other distinctive brand features to identify the source of the information. This does not imply 
@@ -47,15 +47,15 @@ and software library references are listed below.  If you choose to use this sof
 including references to third-party libraries, for your own purposes, you must abide by their terms 
 of use and license restrictions.
 <p>Non-government code and/or software libraries referenced by this software package:
-1. GNU (General Public Software) License for various packages that must be installed to make the 
-software compile and function.  These include the Beaglebone Black Debian operating system, gcc, 
-libconfig, ntp, usbmount, iolib, minicom, libtool, perl, bison and flex.
-2. TI (Texas Instruments, Inc) public software and documentation are used for compiling the binary 
-PRU code (PASM and Code Composer Studio).
-3. MAXUM software examples and documentation were used for programming the MAX5802 analog out chip.
-4. Measurement Specialties, Inc software examples and documentation were used for programming the 
-MS5606 barometric pressure and temperature chip.
-5. Code examples were used as a starting point for several parts of the application from Derek 
-Molloy (2015) Exploring BeagleBone, John Wiley & Sons, Inc.
+    1. GNU (General Public Software) License for various packages that must be installed to make the 
+    software compile and function.  These include the Beaglebone Black Debian operating system, gcc, 
+    libconfig, ntp, usbmount, iolib, minicom, libtool, perl, bison and flex.
+    2. TI (Texas Instruments, Inc) public software and documentation are used for compiling the binary 
+    PRU code (PASM and Code Composer Studio).
+    3. MAXUM software examples and documentation were used for programming the MAX5802 analog out chip.
+    4. Measurement Specialties, Inc software examples and documentation were used for programming the 
+    MS5606 barometric pressure and temperature chip.
+    5. Code examples were used as a starting point for several parts of the application from Derek 
+    Molloy (2015) Exploring BeagleBone, John Wiley & Sons, Inc.
 <p>This notice, in its entirety, shall be included in all copies or substantial portions of the 
 Software.
