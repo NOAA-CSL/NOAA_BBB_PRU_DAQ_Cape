@@ -2,9 +2,9 @@
 ---
 <p>The United States Government makes no warranty, expressed or implied, as to the usefulness of this 
 software and documentation for any purpose. The U.S. Government, its instrumentalities, officers, 
-employees, and agents assume no responsibility (1) for the use of the software and documentation 
-contained in this package, or (2) to provide technical support to users.
----
+employees, and agents assume no responsibility (1) for the use of the software and documentation contained 
+in this package, or (2) to provide technical support to users.
+
 ##USE OF GOVERNMENT DATA, PRODUCTS, AND SOFTWARE
 
 <p>The information on government servers are in the public domain, unless specifically annotated 
@@ -47,6 +47,7 @@ and software library references are listed below.  If you choose to use this sof
 including references to third-party libraries, for your own purposes, you must abide by their terms 
 of use and license restrictions.
 <p>Non-government code and/or software libraries referenced by this software package:
+
     1. GNU (General Public Software) License for various packages that must be installed to make the 
     software compile and function.  These include the Beaglebone Black Debian operating system, gcc, 
     libconfig, ntp, usbmount, iolib, minicom, libtool, perl, bison and flex.
@@ -57,5 +58,6 @@ of use and license restrictions.
     MS5606 barometric pressure and temperature chip.
     5. Code examples were used as a starting point for several parts of the application from Derek 
     Molloy (2015) Exploring BeagleBone, John Wiley & Sons, Inc.
+
 <p>This notice, in its entirety, shall be included in all copies or substantial portions of the 
 Software.
