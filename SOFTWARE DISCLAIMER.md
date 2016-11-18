@@ -48,16 +48,20 @@ including references to third-party libraries, for your own purposes, you must a
 of use and license restrictions.
 <p>Non-government code and/or software libraries referenced by this software package:
 
-    1. GNU (General Public Software) License for various packages that must be installed to make the 
-    software compile and function.  These include the Beaglebone Black Debian operating system, gcc, 
-    libconfig, ntp, usbmount, iolib, minicom, libtool, perl, bison and flex.
-    2. TI (Texas Instruments, Inc) public software and documentation are used for compiling the binary 
-    PRU code (PASM and Code Composer Studio).
-    3. MAXUM software examples and documentation were used for programming the MAX5802 analog out chip.
-    4. Measurement Specialties, Inc software examples and documentation were used for programming the 
-    MS5606 barometric pressure and temperature chip.
-    5. Code examples were used as a starting point for several parts of the application from Derek 
-    Molloy (2015) Exploring BeagleBone, John Wiley & Sons, Inc.
+1. GNU (General Public Software) License for various packages that must be installed to make the 
+software compile and function.  These include the Beaglebone Black Debian operating system, gcc, 
+libconfig, ntp, usbmount, iolib, minicom, libtool, perl, bison and flex.
+
+2. TI (Texas Instruments, Inc) public software and documentation are used for compiling the binary 
+PRU code (PASM and Code Composer Studio).
+
+3. MAXUM software examples and documentation were used for programming the MAX5802 analog out chip.
+
+4. Measurement Specialties, Inc software examples and documentation were used for programming the 
+MS5606 barometric pressure and temperature chip.
+
+5. Code examples were used as a starting point for several parts of the application from Derek 
+Molloy (2015) Exploring BeagleBone, John Wiley & Sons, Inc.
 
 <p>This notice, in its entirety, shall be included in all copies or substantial portions of the 
 Software.
