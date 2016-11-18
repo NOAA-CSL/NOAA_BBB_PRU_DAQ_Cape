@@ -19,7 +19,7 @@ and terminal programs on Windows, MAC, or Linux OS.
 
 ##Part 1.  BealgeBone Black Setup
 
-1.  Operating system.  The version of the OS this cape is build around is 
+**Operating system.**  The version of the OS this cape is build around is 
 'BBB-eMMC-fasher-debian-7.5-2014-05-14-2gb.img' (available from BeagleBoard.org).  Write this image onto a 
 uSD card of at least 4 GB with Win32DiskImager.  Installing it will overwrite anything on the 
 BeagleBone Black emmc.  Place the uSD card in the slot, power up the BeagleBone Black with an 
@@ -27,13 +27,13 @@ appropiate 5 V power supply while holding down the program button near the uSD c
 BeagleBone Black powers down, programming is complete.  The rest of the steps can be performed 
 using the USB cable to connect with the BeagleBone Black.
 
-2.  Host Name and user.  Edit the name in '/etc/hostname' and '/etc/hosts' if you wish.  It is used in 
+**Host Name and user.**  Edit the name in '/etc/hostname' and '/etc/hosts' if you wish.  It is used in 
 the configuration file to keep track of multiple instruments.  The user can just be root (and in 
 fact to make some of the changes root privilages are needed), or a user can be created with:
 
     adduser {newuser} then answer the prompts to create the user.
 	
-3.  Set up the network connection.  The network connection to the BeagleBone Black that is connected
+**Set up the network connection.**  The network connection to the BeagleBone Black that is connected
 to the laptop via the USB cable is done by issuing this command in the terminal on the BeagleBone 
 Black:
 
@@ -79,7 +79,7 @@ Test network connection:
 
 If this does not work, retry the network connection section.
 
-4. Disable the HDMI and HDMIN. The pins used by the HDMI are used for the PRU, so this need to 
+**Disable the HDMI and HDMIN.** The pins used by the HDMI are used for the PRU, so this need to 
 be disabled.  From a terminal connected to the BeagleBone Black:
 
     cd  /boot/uboot
@@ -91,7 +91,7 @@ Uncomment the line to disable HDMI and HDMIN and save. (BUT NOT HDMIN, EMMC line
     cat uEnv.txt 					(to make sure it is right)
     shutdown -r now		    		(to reboot the BeagleBone Black)
 
-5.  Additional installs and updates (from a BeagleBone Black terminal):
+**Additional installs and updates.** (from a BeagleBone Black terminal):
 
     apt-get update
     apt-get install usbmount		(thumb drives will now automount after reboot)
@@ -99,9 +99,9 @@ Uncomment the line to disable HDMI and HDMIN and save. (BUT NOT HDMIN, EMMC line
     git config --global http.sslVerify false
     shutdown -r now					(reboot)
 
-Copy POPS subdirectory to /var/lib/cloud9/POPS
+Copy POPS subdirectory to '/var/lib/cloud9/POPS'.
 
-6.  Install Libconfig and other packages.
+**Install Libconfig and other packages.**
 
     cd /var/lib/cloud9/POPS
     ./Software_install_1 			(will reboot when finished, installs tree, ntp, minicom and 
@@ -115,7 +115,7 @@ over the configuration file.
     mkdir /media/uSD/Data
     cp /var/lib/cloud9/POPS/POPS_BBB.cfg /media/uSD
 
-7.  Build the pops software.   From the /var/lib/cloud9/POPS directory execute the build with:
+**Build the pops software.**   From the '/var/lib/cloud9/POPS' directory execute the build with:
  
     './build'
 
@@ -131,7 +131,7 @@ and NOAA cape) can be powered in two ways.  DO NOT USE THE 5V INPUT AFTER THIS P
 occur to the cape or the BeagleBone Black.  After the system is powered up, the connection to the 
 BeagleBone Black can be either through the USB or ethernet ports.
 
-1.  Set the time.   The time is set by first updating the time from the internet and then writing 
+**Set the time.**   The time is set by first updating the time from the internet and then writing 
 that time to the realtime clock.  From '/var/lib/cloud9/POPS':
 
     ntpdate -b -s -u time.nist.gov		
@@ -151,7 +151,7 @@ Now the hardware clock service will starts on boot, but it can be started and st
     systemctl start rtc-ds1307.service
     systemctl stop rtc-ds1307.service
 
-2.  Watchdog Timer.  The watchdog is used in the POPS code, and must be accessed once before it is 
+**Watchdog Timer.**  The watchdog is used in the POPS code, and must be accessed once before it is 
 available.  Access the watchdog with:
 
     cd /dev
@@ -160,9 +160,10 @@ available.  Access the watchdog with:
     
 Then type something, followed by ctrl-c to exit the watchdog.
 
-3.  Serial Communication.  Access the UARTS with minicom on the BBB and TaraTerm (or similar) on the 
-laptop can be used to test the serial ports.  Port 1 is output as both RS232 and TTL.  TTL is usually
-used for our balloon applications.  UART 2 is used in our application for full data.
+**Serial Communication.**  The serial ports can be tested by accessing the UARTS with minicom on the 
+BBB and TaraTerm (or similar) on the laptop can be used to test the serial ports.  Port 1 is output 
+as both RS232 and TTL.  TTL is usually used for our balloon applications.  UART 2 is used in our 
+application for full data.
 
     minicom -b 9600 -o -D /dev/ttyO1  		
     minicom -b 115200 -o -D /dev/ttyO2 
@@ -170,7 +171,7 @@ used for our balloon applications.  UART 2 is used in our application for full d
 In this example UART1 is set to 9600 baud, and UART2 is set to 115200 baud.  
 ##Other Information:
 
-1. C Compiler and Programming. To compile a C program:
+**C Compiler and Programming.** To compile a C program:
 
         gcc {name}.c -o {name} -m -lrt -lconfig -lprussdrv -L. -liofunc
 
@@ -183,7 +184,7 @@ where the libraries are:
         GPIO		    -L. -liofunc	"iolib.h"
 			                    	    <linux/watchdog>
 
-2. PRU Programming.  For the 5/14/2014 version of Debian on the BeagleBone Black the NOAA device 
+**PRU Programming.**  For the 5/14/2014 version of Debian on the BeagleBone Black the NOAA device 
 tree files are copied to '/lib/firmware'.  This was done in one of the scrip '<Software_install_2>'.  
 Each instruction takes at least 5 ns to execute.  To enable the scratch pad between PRUs, the -V3 
 switch must be present in the compile command.  For instance:
