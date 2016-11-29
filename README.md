@@ -8,63 +8,60 @@ for developing other applications.
 
 ##Cape Features:
 
-* One 16-bit high-speed (4MHz minimum) analog in channel from a ***** chip (not provided).
-This uses both PRUs to implement, and the data is passed in memory.
+* One 16-bit high-speed (4 MHz minimum) analog in channel from a ***** chip (not provided).  The input is 
+through an SATA cable. This uses both PRUs to implement, and the data is passed in memory.
 
-*7 12-bit on-board analog in channels (0-1.8 V).
+* Seven 12-bit on-board analog in channels (0-1.8 V).
 
-*2 12-bit analog out channels (0-5 V).
+* Two 12-bit analog out channels (0-5 V).
 
-*An on-board pressure sensor.
+* An on-board pressure sensor.
 
 * A hardware realtime clock and battery holder.
 
 * 2 UARTs in RS232. UART1 is duplicated in TTL.
 
-* UDP communications.
+* UDP communications. (TCP/IP communications could be implemented, but was not used for the POPS application.)
 
 * The capability to run from a power supply or battery.
 
 ##Provided Information:
 
-* This README.md
+* This README.md.
 
-* SOFTWARE DISCLAIMER.md  This file is to be included with any code that is copied from this 
+* SOFTWARE DISCLAIMER.md:  This file is to be included with any code that is copied from this 
 distribution and used in another application.
 
-* NOAA_BBB_PRU_DAQ_Cape_Setup.md  This file describes how to setup the BeagleBone Black to 
+* NOAA_BBB_PRU_DAQ_Cape_Setup.md:  This file describes how to setup the BeagleBone Black to 
 correctly configure it to work with the cape.
 
-* NOAA_BBB_PRU_DAQ_Cape Pin Use.doc  The pins used by the cape, and other pin information, is 
+* NOAA_BBB_PRU_DAQ_Cape Pin Use.md:  The pins used by the cape, and other pin information, is 
 presented in this document as a table.
 
-* bone-debian-7.52014-05-14-2gb.img.xz  The Debian image used as the operating system for this 
-cape.
+* ????:  NOAA_BBB_PRU_DAQ_Cape layout files.
 
-* ???? Board layout files.
-
-* ???? Materials list for the board.
+* ????:  Materials list for the cape.
 	
 ##Software and Example:
 
-* build  A script to build the *.c and *.p files provided.
+* build:  A script to build the *.c and *.p files provided.
 
-* cape-bone-iio-00A0.dtbo  The analog in device tree binary object file.
+* cape-bone-iio-00A0.dtbo:  The analog in device tree binary object file.
 
-* clock_init.sh  The clock initialization shell.
+* clock_init.sh:  The clock initialization shell.
 
-* iolib.c, iolib.h, iolib.o, libiofunc.a, MAKEFILE libio is used for digital IO in the software.
+* iolib.c, iolib.h, iolib.o, libiofunc.a and MAKEFILE:  The library libio is used for digital IO in the software.
 	
-* NOAA *.dts and *.dtbo files for setting the GPIO, PRUs and UARTS.
+* NOAA *.dts and *.dtbo files:  Used to set the Analog In, GPIO, PRUs and UARTS pins.
 
-* POPS_BBB.c The main program for the POPS instrument.
+* POPS_BBB.c:  The main program for the POPS instrument. Demonstrates the capacity of the cape.
 
-* POPS_BBB.cfg The configuration file for the POPS instrument.
+* POPS_BBB.cfg:  The configuration file for the POPS instrument.
 
-* rc.local File for startup of services on boot.
+* rc.local:  File for startup of services on boot.
 
-* rtc-ds1307.service Hardware realtime clock service.
+* rtc-ds1307.service:  Hardware realtime clock service setup.
 
-* Software_install_1 and Software_install_2 Scripts for installing the software on the 
+* Software_install_1 and Software_install_2:  Scripts for installing the software on the 
 Beaglebone Black.
 	
