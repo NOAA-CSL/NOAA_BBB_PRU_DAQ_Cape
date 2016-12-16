@@ -1,30 +1,31 @@
+![pops_bbb_noaa](https://cloud.githubusercontent.com/assets/23479476/21242758/babe1360-c30d-11e6-89c9-b6001e482500.JPG)
+
 # NOAA_BBB_PRU_DAQ_Cape
 
 <p>This cape was developed for the NOAA Printed Optical Particle Spectrometer (POPS) instrument that 
-is used to make balloon and aircraft particle concentration measurements.  The POPS instrument is patented 
-and can be licensed for $500 per year.  Contact Derek Parks (Derek.Parks@NOAA.gov).  This cape and software
-has been patented and  is being presented (with the included disclaimer) free for public download, 
-modification and use.  The programs that are presented are for the POPS instrument, and are meant as an 
-example and guide for developing other applications.
+is used to make balloon and aircraft particle concentration measurements.  It has been patented and 
+is being presented (with the included disclaimer) free for public download, modification and use.  
+The programs that are presented are for the POPS instrument, and are meant as an example and guide 
+for developing other applications.
 
 ##Cape Features:
 
-* A high-speed LVDT serial interface using a DS90C124 deserializer.  It connects via a SATA cable to an 
-LT2203 16 bit A/D converter located on the photomultiplier (PMT) interface board, sampling at 4 MHz.
-This uses both PRUs to implement, and the data is passed in memory.
+* One 16-bit high-speed (4 MHz minimum) analog in channel from a ***** chip (not provided).  The input is 
+through an SATA cable. This uses both PRUs to implement, and the data is passed in memory.
 
-* Signal conditioning for the Beagle Bone's seven 12-bit analog in channels (0-1.8 V).
+* Seven 12-bit on-board analog in channels (0-1.8 V).
 
-* MAX5802 D/A converter providing two 12-bit analog out channels (0-5 V) used for controlling the instrument's flow rate and laser power.
+* Two 12-bit analog out channels (0-5 V).
 
-* An on-board MS5607-02BA03 pressure/temperature sensor.
+* An on-board pressure sensor.
 
-* A DS3231 hardware realtime clock and battery holder.
+* A hardware realtime clock and battery holder.
 
-* MAX3223 RS232 interface for two UARTs. UART1 is duplicated in TTL.
+* 2 UARTs in RS232. UART1 is duplicated in TTL.
 
-* M24256 cape EEPROM.
+* UDP communications. (TCP/IP communications could be implemented, but was not used for the POPS application.)
 
+* The capability to run from a power supply or battery.
 
 ##Provided Information:
 
@@ -39,13 +40,13 @@ correctly configure it to work with the cape.
 * NOAA_BBB_PRU_DAQ_Cape Pin Use.md:  The pins used by the cape, and other pin information, is 
 presented in this document as a table.
 
-* NOAA_BBB_PRU_DAQ_Cape, PMT interface board, and base plate Eagle PCB files.
+* ????:  NOAA_BBB_PRU_DAQ_Cape layout files.
 
-* BOM as an Excel spreadsheet for the boards.
+* ????:  Materials list for the cape.
 	
 ##Software and Example:
 
-* build:  Scripts to build the *.c and *.p files provided.
+* build:  A script to build the *.c and *.p files provided.
 
 * cape-bone-iio-00A0.dtbo:  The analog in device tree binary object file.
 
@@ -55,9 +56,7 @@ presented in this document as a table.
 	
 * NOAA *.dts and *.dtbo files:  Used to set the Analog In, GPIO, PRUs and UARTS pins.
 
-* PRU0_ParData.p, PRU1_All.p and PRU1_All_dt.p: Assembly language programs for the POPS instrument.
-
-* POPS_BBB.c and POPS_BBB_dt.c:  The main program for the POPS instrument. Demonstrates the capacity of the cape.
+* POPS_BBB.c:  The main program for the POPS instrument. Demonstrates the capacity of the cape.
 
 * POPS_BBB.cfg:  The configuration file for the POPS instrument.
 
