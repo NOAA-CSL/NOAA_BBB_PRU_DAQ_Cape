@@ -157,8 +157,8 @@ SET_MAX:
     
 WRITE_PK: 
     CLR r5.t0                       // end of peak
-    QBGT CLEAR, r2.w2, 5            // not enough points
-    QBLT CLEAR, r2.w2, 255          // too many points
+    QBGT READ_BLTH, r2.w2, 5        // not enough points
+    QBLT READ_BLTH, r2.w2, 255      // too many points
     LBBO r23, r22, 0, 4             // Get the control register value
     CLR r23, 3                      // Disable the cycle count
     SBBO r23, r22, 0, 4             // Send Disable out
@@ -171,14 +171,8 @@ WRITE_PK:
     
 CLEAR_CYCT:
     SBBO r12, r22, 0xc, 4           // Clear the cycle count
-    LBBO r23, r22, 0, 4             // Get the control register value
     SET r23.t3                      // Enable the cycle count
     SBBO r23, r22, 0, 4             // Send Enable out
-    
-CLEAR:    
-    MOV r2, 0x00000000              // restart point
-    MOV r3, 0x00000000
-    MOV r4, 0x00000000
     JMP READ_BLTH                   // LOOP Again.
     
 END:
