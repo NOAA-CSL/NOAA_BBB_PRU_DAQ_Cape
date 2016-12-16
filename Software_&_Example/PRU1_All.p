@@ -1,5 +1,5 @@
 // Data_PRU1.p program to read DR (data ready), OU (over/under flow), 
-// and read either the high byte of the data.
+// and read the low byte of the data.
 // Does the analysis for peak points. Peak >= 5 points and
 // peak < 255 points
 // Also reads the Power Off bit for shutdown.
