@@ -32,7 +32,7 @@ log10 histogram of size.
 * Enables the scratchpad.
 * Used data read and data not ready signal to sync the reading of a data point.
 * Reads the high byte of the data, and requests the low byte from PRU0 using the scratch pad.
-* Sorts the point into a baseline or particle point, and kepps track of particle parameters.
+* Sorts the point into a baseline or particle point, and keeps track of particle parameters.
 * Uses a cycle counter to determine the time between particles (dt version).
 * Writes baseline, raw and particle data to the RAM, and writes out any addresses to be able to read the 
 rolling buffers. 
