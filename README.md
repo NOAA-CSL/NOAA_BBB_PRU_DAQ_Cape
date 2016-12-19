@@ -6,7 +6,7 @@
 Spectrometer (POPS) instrument that is used to make balloon and aircraft particle concentration measurements. The 
 POPS instrument is patented and can be licensed for $500 per year.  Contact Derek Parks (Derek.Parks@NOAA.gov) for 
 more information. This cape and software has been patented and is being presented (with the included disclaimer) 
-free for public ownload, modification and use. The programs that are presented are for the POPS instrument, and are
+free for public download, modification and use. The programs that are presented are for the POPS instrument, and are
 meant as an example and guide for developing other applications.
 
 ##Cape Features:
