@@ -3,12 +3,11 @@
 # NOAA_BBB_PRU_DAQ_Cape
 
 <p>The NOAA BeagleBone Black PRU and DAQ Cape was developed for the NOAA Printed Optical Particle 
-Spectrometer (POPS) instrument that is used to make balloon and aircraft particle concentration measurements.   
-The POPS instrument is patented and can be licensed for $500 per year.  Contact Derek Parks (Derek.Parks@NOAA.gov). 
-This cape and software has been patented and 
-is being presented (with the included disclaimer) free for public download, modification and use.  
-The programs that are presented are for the POPS instrument, and are meant as an example and guide 
-for developing other applications.
+Spectrometer (POPS) instrument that is used to make balloon and aircraft particle concentration measurements. The 
+POPS instrument is patented and can be licensed for $500 per year.  Contact Derek Parks (Derek.Parks@NOAA.gov) for 
+more information. This cape and software has been patented and is being presented (with the included disclaimer) 
+free for public ownload, modification and use. The programs that are presented are for the POPS instrument, and are
+meant as an example and guide for developing other applications.
 
 ##Cape Features:
 
@@ -42,7 +41,7 @@ correctly configure it to work with the cape.
 presented in this document as a table.
 
 
-##Hardware
+##Hardware:
 
 * README.md file for the hardware.
 
