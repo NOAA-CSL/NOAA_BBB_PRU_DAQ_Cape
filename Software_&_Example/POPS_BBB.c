@@ -18,7 +18,7 @@
 //		For each peak the width (number of points), baseline, peak
 //		and position is reported. UART and UDP communications are 
 //		implemented with two channels each.  The configuration file
-//		POPS_BBB.cfg is uded to configure the instrument parameters.
+//		POPS_BBB.cfg is used to configure the instrument parameters.
 //
 // Revision History:
 //	1.0	First public version
@@ -136,29 +136,29 @@ the Software.*/
 //
 //******************************************************************************
 
-#define Billion 1000000000L				// For time conversion
-#define PRU_NUM0 0						// PRU 0 high byte
-#define PRU_NUM1 1						// PRU 1 low byte and ctrl
+#define Billion 1000000000L			// For time conversion
+#define PRU_NUM0 0					// PRU 0 high byte
+#define PRU_NUM1 1					// PRU 1 low byte and ctrl
 
 // MAX5802 Constants
-#define MAX5802_I2C_WADDR	  (0x0F)	// A1 and A0 to gnd.
-#define MAX5802_2500_EXT_REF  (0)		// 2.500V external reference for AO
+#define MAX5802_I2C_WADDR	  (0x0F)		// A1 and A0 to gnd.
+#define MAX5802_2500_EXT_REF  (0)			// 2.500V external reference for AO
 #define MAX5802_2500_MV_REF	  (5)		// 2.500V internal reference for AO
 #define MAX5802_2048_MV_REF	  (6)		// 2.048V internal reference for AO
 #define MAX5802_4096_MV_REF	  (7)		// 4.096V internal reference for AO
-#define MAX5802_DEFAULT_RETURN  0x80	// Rest sel DAC channel(s) to value in RETURN reg
+#define MAX5802_DEFAULT_RETURN  0x80		// Rest sel DAC channel(s) to value in RETURN reg
 
 // MS5607 Constants
-#define MS5607_CONV_DELAY_MS	(2.5)	// ms for T and P
+#define MS5607_CONV_DELAY_MS	(2.5)		// ms for T and P
 
 // MS5607 Commands
-#define MS5607_CMD_RESET		(0x1E)	// Reset P and T
+#define MS5607_CMD_RESET		(0x1E)		// Reset P and T
 #define MS5607_CMD_READ_ADC		(0x00)	// Read T&P data
-#define MS5607_CMD_READ_PROM_BASE	(0xA0)// Coeficient vase address xA0 to xAE
-#define MS5607_CMD_CONVERT_D1_P		(0x44)// Convert P 1024 resolution
-#define MS5607_CMD_CONVERT_D2_T		(0x54)// Convert T 1024 resolution
+#define MS5607_CMD_READ_PROM_BASE	(0xA0)		// Coeficient vase address xA0 to xAE
+#define MS5607_CMD_CONVERT_D1_P		(0x44)	// Convert P 1024 resolution
+#define MS5607_CMD_CONVERT_D2_T		(0x54)	// Convert T 1024 resolution
 
-#define WATCHDOG "/dev/watchdog"		 // For watchdog timer
+#define WATCHDOG "/dev/watchdog"		 	// For watchdog timer
 
 typedef enum MAX5802_status
 {
@@ -240,91 +240,91 @@ void Close_UDP_Socket(int UDPID);
 char gCode_Version[25] = {""};			// Software version installed
 char gBBB_SN[20] = {""};				// BBB Serial Number
 char gPOPS_SN[20] = {""};				// Instrument serial number
-char gDaughter_Board[20] = {""};		// Daughter board part number
+char gDaughter_Board[20] = {""};			// Daughter board part number
 
-int	gStop = 0;							// Global Stop, 1 = Stop
-										// PRU1 bit r31.t11 low=Stop
-int gReboot = 0;						// Glogal reboot, 1= reboot
-int gIntStatus=1;						// Status integer. 1=startup, 3=run
-										// 17 = low flow, 32 = failed
-char gStatus_Type[20];					// iMet, UAV or iMet_ANG
+int	gStop = 0;					// Global Stop, 1 = Stop
+							// PRU1 bit r31.t11 low=Stop
+int gReboot = 0;					// Global reboot, 1= reboot
+int gIntStatus=1;					// Status integer. 1=startup, 3=run
+							// 17 = low flow, 32 = failed
+char gStatus_Type[20];				// iMet, UAV or iMet_ANG
 
 unsigned int gRaw_Data[512];			// Raw data, max of 1024 pts
 unsigned int gRawBL_Data[512];			// Raw BL Data pts
 
-double gFullSec;						// Timestamp with partial sec.
+double gFullSec;					// Timestamp with partial sec.
 char gTimestamp[16], gDatestamp[9];		// String YYYYMMDDThhmmss
-										// String YYYYMMDD
+							// String YYYYMMDD
 struct timeval StartTime;				// Start of 1 sec timer
-int msfd, sfd;							// File descriptors for ms and s timers
+int msfd, sfd;					// File descriptors for ms and s timers
 
-int gSkip_Save;							// Skip n Between Save in peak files.
-int gn_between = 0;						// Counter for skip.
+int gSkip_Save;					// Skip n Between Save in peak files.
+int gn_between = 0;					// Counter for skip.
 char gBaseAddr[25] = {""};				// Base path for data files.
 char gPOPS_BBB_cfg[20] = {""};			// POPS BBB configuration file
 char gHK_File[50] = {""};				// Path for Housekeeping File.
 char gPeakFile[50] = {""};				// Path for Peak File.
 char gLogFile[50] = {""};				// Path for Log File.
-char gMessage[1000] = {""};				// Message strings.
+char gMessage[1000] = {""};			// Message strings.
 char gRawFile[50] = {""};				// Raw data file. First n pts/sec
-char gRawBLFile[50] = {""};				// Raw Baseline data. Latest n pts.
+char gRawBLFile[50] = {""};			// Raw Baseline data. Latest n pts.
 								
-int gHist[200] = {0};					// Histogram of particle sizes
+int gHist[200] = {0};				// Histogram of particle sizes
 unsigned int gPart_Num=0;				// Particles per second
-double gPartCon_num_cc;					// Particle concentration, per cc
-unsigned int i_head = 0, i_tail = 0;	// buffer positions for the data
-unsigned int m_head = 0, m_tail = 0;	// buffer positions Shared Mem
-unsigned int y_data[10000], nold = 0;	// data and carryover
+double gPartCon_num_cc;				// Particle concentration, per cc
+unsigned int i_head = 0, i_tail = 0;		// buffer positions for the data
+unsigned int m_head = 0, m_tail = 0;		// buffer positions Shared Mem
+unsigned int y_data[10000], nold = 0;		// data and carryover
 
 short unsigned int gBLTH;				// Baseline plus threshold
 short unsigned int gBaseline;			// Baseline
 short unsigned int gBL_Start;			// Starting value of the Baseline
-double gSTD;							// STD of Baseline
-double gTH_Mult;						// Threshold multiplier * STD
+double gSTD;						// STD of Baseline
+double gTH_Mult;					// Threshold multiplier * STD
 
-int UART1, UART2;						// Serial port references
+int UART1, UART2;					// Serial port references
 unsigned char gCMD[512] = {""};			// Serial data revieved - UART1 (0-9)
 char gStatus[4094] = {""};				// Status to send.
 char gFull[4094] = {""};				// Full data to send
-char gHK[4094] = {""};					// Housekeeping data to save
-char gRaw_Out[4094] = {""};				// Raw Data out and save
+char gHK[4094] = {""};				// Housekeeping data to save
+char gRaw_Out[4094] = {""};			// Raw Data out and save
 char gRaw_BLOut[4094] = {""};			// Raw Baseline Data out and save
 
-static void *pru1DRAM;					// pointer for baseline data RAM
-										// memory buffer
+static void *pru1DRAM;				// pointer for baseline data RAM
+							// memory buffer
 static unsigned int *pru1DRAM_int;		// values at the memory location
 static void *pruSharedMem;				// pointer to shared pru memory
-static unsigned int *pruSharedMem_int;	// values of the shared memory
-static void *pru0DRAM;					// pointer to pru0 DRAM
+static unsigned int *pruSharedMem_int;		// values of the shared memory
+static void *pru0DRAM;				// pointer to pru0 DRAM
 static unsigned int *pru0DRAM_int;		// value of the memory location
 
 unsigned int gMinPeakPts;				// minimum points to make a peak
 unsigned int gMaxPeakPts;				// maximum points in one peak
 
 long unsigned int	ms5607_prom_coeffs[7];
-double	T=0, P=0;						// Pressure and temperature of P Chip
+double	T=0, P=0;					// Pressure and temperature of P Chip
 
-struct Raw {							// Structures for Raw data to
-	bool view;							// Send to ground
-	bool save;							// Save to file
-	int pts;							// Data points to save per second
-	int blpts;							// Baseline points per second
-	int ct;								// Count of points
+struct Raw {						// Structures for Raw data to
+	bool view;					// Send to ground
+	bool save;					// Save to file
+	int pts;					// Data points to save per second
+	int blpts;					// Baseline points per second
+	int ct;					// Count of points
 } gRaw;
 
 // AI Conversion Enum
 enum con_type
-{rawai,									//raw ai mv 0-1800
-mV,										// mV 0-1800 direct reading
-V,										// V 0-1.8 V
-Therm,									// Thermocouple
-BatV,									// Battery V
-Flow,									// Flow using offset and divisor
-RH_pct,									// Relative Humidity %
-Pres};									// Pressure, mBar
-float gFlow_Offset;						// Flow offset
-float gFlow_Divisor;					// Flow divisor
-struct AI {								// structure for the AI data
+{rawai,						//raw ai mv 0-1800
+mV,							// mV 0-1800 direct reading
+V,							// V 0-1.8 V
+Therm,							// Thermocouple
+BatV,							// Battery V
+Flow,							// Flow using offset and divisor
+RH_pct,						// Relative Humidity %
+Pres};							// Pressure, mBar
+float gFlow_Offset;					// Flow offset
+float gFlow_Divisor;				// Flow divisor
+struct AI {						// structure for the AI data
 	char name[20];
 	enum con_type conv;
 	double  value;
@@ -333,7 +333,7 @@ struct gAI_Data {
 	struct AI ai[7];
 } gAI_Data;
 
-struct AO {								// structure for the AO data
+struct AO {						// structure for the AO data
 	char name[20];
 	double set_V;
 	unsigned int set_num;
@@ -346,10 +346,10 @@ struct gAO_Data {
 	struct AO ao[2];
 } gAO_Data;
 
-struct Serial_Port {					// structure for the serial ports
+struct Serial_Port {				// structure for the serial ports
 	int port;
 	int baud;
-	char type[3];						// S = Status, F = Full data
+	char type[3];					// S = Status, F = Full data
 	bool use;
 	bool open;
 };
@@ -357,13 +357,13 @@ struct gSerial_Ports {
 	struct Serial_Port serial_port[2];
 } gSerial_Ports;
 
-struct gBins {							// structure for the bins
+struct gBins {					// structure for the bins
 	unsigned int nbins;
 	double logmin;
 	double logmax;
 } gBins;
 
-struct Peaks {							// structure for peak data
+struct Peaks {					// structure for peak data
 	unsigned int max;
 	unsigned int pos;
 	unsigned int w;
@@ -371,18 +371,18 @@ struct Peaks {							// structure for peak data
 };
 struct gData {
 	struct Peaks peak[30000];
-} gData;								// global data structure
+} gData;						// global data structure
 unsigned int gArray_Size = 0;			// Size of the data array
 
 int UDP0S, UDP0R, UDP1S, UDP1R;			// UDP references
 
 struct UDP {
-	char IP[16];						// IP address to connect to
-	unsigned int port;					// connection port
-	char type[2];						// S = Status, F = Full
-	bool use;							// use this connection?
+	char IP[16];					// IP address to connect to
+	unsigned int port;				// connection port
+	char type[2];					// S = Status, F = Full
+	bool use;					// use this connection?
 	struct sockaddr_in myaddr;			// address info
-	struct sockaddr_in remaddr;			// address info
+	struct sockaddr_in remaddr;		// address info
 } UDP;
 
 struct gUDP {
@@ -542,9 +542,9 @@ if(gUDP.udp[0].use || gUDP.udp[1].use) strcat(gMessage, "\tUDP sockets opened.\n
 
 // Initial value of the Baseline + Threshold
     pru1DRAM_int[256] = (gBL_Start+0x30);	// BLTH
-    pru1DRAM_int[257] = gBL_Start;			// BL
-    pru1DRAM_int[258] = 0x00010000;			// start of points
-    pru1DRAM_int[259] = 0x00000000;			// stop
+    pru1DRAM_int[257] = gBL_Start;		// BL
+    pru1DRAM_int[258] = 0x00010000;		// start of points
+    pru1DRAM_int[259] = 0x00000000;		// stop
 
 	for(i=0; i<256; i++)
 	{
@@ -573,7 +573,7 @@ if(gUDP.udp[0].use || gUDP.udp[1].use) strcat(gMessage, "\tUDP sockets opened.\n
 	first_call = 1;
 	usleep(50);
 	Calc_Baseline();
-	Check_Stop();				// PRU1 r31.b11 P8.30
+	Check_Stop();					// PRU1 r31.b11 P8.30
 
 //*****************************
 // Make timers for 1 sec loop
@@ -590,7 +590,7 @@ j=0;
 // Main Loop
 //*****************************
 
-	while(!gStop)			// Main Data Loop
+	while(!gStop)					// Main Data Loop
 	{
 		if(!first_call)
 		{
@@ -782,7 +782,7 @@ printf("gStop = %d system shutdown\n",gStop);
 	Set_AO(1,0.0);		//Set AO1
 
 	pin_low(8,13);
-	iolib_free();		//Clear GPIO
+	iolib_free();			//Clear GPIO
 
 	Close_Serial(UART1);
 	Close_Serial(UART2);
@@ -863,9 +863,7 @@ int Read_POPS_cfg()
 //	  Read the file. If there is an error, log it and goto Default.
 	 if(! config_read_file(&cfg, "/media/uSD/POPS_BBB.cfg"))
 	 {
-	//fprintf(stderr, "%s:%d - %s\n", config_error_file(&cfg),
-	   //config_error_line(&cfg), config_error_text(&cfg));
-	   strcat(gMessage,"Error opening the POPS_BBB.cfg file.\n");
+		strcat(gMessage,"Error opening the POPS_BBB.cfg file.\n");
 		goto Defaults;
 // We actually want to continue and use default values rather than fail.
 	 }
@@ -1479,39 +1477,39 @@ void ReadAI( void )
 		if (ain[i]>=1780) pin_high(8,14);
 		switch(gAI_Data.ai[i].conv)
 		{
-			case rawai:							//raw mv (0-1800)
-				gAI_Data.ai[i].value=ain[i];
-				break;
-			case mV:							//mVoltage (0 - 5036.17)
+		   case rawai:						//raw mv (0-1800)
+			 gAI_Data.ai[i].value=ain[i];
+			 break;
+		   case mV:							//mVoltage (0 - 5036.17)
 			 gAI_Data.ai[i].value=ain[i]*2.79787;
 			 break;
-		   case V:								//Voltage (0 - 5.03617)
+		   case V:							//Voltage (0 - 5.03617)
 			 gAI_Data.ai[i].value=ain[i]*2.79787/1000.;
 			 break;
 		   case Pres:							//Pressure
-			  gAI_Data.ai[i].value=(ain[i]*2.79787/1000.)*1013.25;
-			  break;
+			 gAI_Data.ai[i].value=(ain[i]*2.79787/1000.)*1013.25;
+			 break;
 		   case BatV:							//Battery voltage
-			  gAI_Data.ai[i].value=(ain[i]*0.01117699115);
-			  break;
+			 gAI_Data.ai[i].value=(ain[i]*0.01117699115);
+			 break;
 		   case Flow:							//Flow cc/s
-			  gAI_Data.ai[i].value=((ain[i]*2.79787/1000.)-gFlow_Offset)/gFlow_Divisor;
-			  break;
-		   case Therm:							//Thermistor T
+			 gAI_Data.ai[i].value=((ain[i]*2.79787/1000.)-gFlow_Offset)/gFlow_Divisor;
+			 break;
+		   case Therm:						//Thermistor T
 		   {
 			double LR = log(1.24*((3601.6/ain[i])-1)*1000.);
 			int1 = B*LR;
 			int2 = C*LR*LR*LR;
 			int3 = D*LR*LR*LR*LR*LR;
 
-			  gAI_Data.ai[i].value=(double)(1./(A + int1 + int2 + int3))-273.15;
+			gAI_Data.ai[i].value=(double)(1./(A + int1 + int2 + int3))-273.15;
 
 		   }
 			  break;
 		   case RH_pct:
 			gAI_Data.ai[i].value=(ain[i]*2.79787/1000.)*100./5.03617;
 			break;
-		   default:								//Voltage (0 - 5.03617)
+		   default:							//Voltage (0 - 5.03617)
 			gAI_Data.ai[i].value=(ain[i]*2.79787/1000.);
 		}
 
@@ -1544,7 +1542,7 @@ void POPS_Output (void)
 
 // Full dat and HK
 
-	strcpy(gFull, inst);					//Header
+	strcpy(gFull, inst);				//Header
 	
 	strcat(gFull, gStatus_Type);			//Status Type
 	strcat(gFull,",");
@@ -1562,17 +1560,17 @@ void POPS_Output (void)
 	sprintf(str, ",%u,%u,%.2f",gBaseline,gBLTH,gSTD); //Baseline info
 	strcat(fullstr, str);
 	
-	sprintf(str,",%.2f,%.2f", P, T);		//P and T
+	sprintf(str,",%.2f,%.2f", P, T);			//P and T
 	strcat(fullstr,str);
 	
-	for (i=0; i<7; i++)						//AI
+	for (i=0; i<7; i++)					//AI
 	{
 		sprintf(str,",%.2f" ,gAI_Data.ai[i].value);
 		strcat(fullstr,str);
 	}
 
 
-	for (i=0; i<2; i++)						//AO
+	for (i=0; i<2; i++)					//AO
 	{
 		sprintf(str,",%.2f", gAO_Data.ao[i].set_V);
 		strcat(fullstr,str);
@@ -1595,7 +1593,7 @@ void POPS_Output (void)
 	strcat(fullstr, str);// add cr lf
 
 	strcat(gFull, fullstr);
-	strcat(gHK, fullstr);					//Set HK data
+	strcat(gHK, fullstr);				//Set HK data
 
 
 // Raw Data
@@ -1643,12 +1641,12 @@ void POPS_Output (void)
 
 			strcat(gStatus,str);
 
-			for (i=0; i<Bins; i++)							//Histogram
+			for (i=0; i<Bins; i++)					//Histogram
 			{
 				sprintf(str, "%04X", gHist[i]);
 				strcat(gStatus, str);
 			}
-			sprintf(str,"\r\n");							//add cr lf
+			sprintf(str,"\r\n");					//add cr lf
 			strcat(gStatus, str);
 		}
 		
@@ -1675,9 +1673,9 @@ void POPS_Output (void)
 		else if(strcmp(gStatus_Type, "iMet_ANG")==0)
 		{
 			strcpy(gStatus,"xdata=3801");
-			sprintf(str, "%04X", gPart_Num);						//Particle Number
+			sprintf(str, "%04X", gPart_Num);				//Particle Number
 			strcat(gStatus,str);
-			sprintf(str, "%04X",(int)gPartCon_num_cc);				//Particle Concentration
+			sprintf(str, "%04X",(int)gPartCon_num_cc);		//Particle Concentration
 			strcat(gStatus,str);
 			sprintf(str, "%04X",gBaseline);							//Baseline
 			strcat(gStatus,str);
@@ -1685,13 +1683,13 @@ void POPS_Output (void)
 			strcat(gStatus,str);
 			sprintf(str, "%04X",(int)gSTD);							//Baseline STD
 			strcat(gStatus,str);
-			sprintf(str, "%04X",(int)(P*10));						//Pressure
+			sprintf(str, "%04X",(int)(P*10));				//Pressure
 			strcat(gStatus,str);
-			sprintf(str, "%04X",(int)(100+T));						//T of P
+			sprintf(str, "%04X",(int)(100+T));			//T of P
 			strcat(gStatus,str);
 			sprintf(str, "%04X",(int)(10*gAI_Data.ai[0].value));	//POPS Flow
 			strcat(gStatus,str);
-			sprintf(str, "%04X",(int)(gAI_Data.ai[1].value));		//PumpFB
+			sprintf(str, "%04X",(int)(gAI_Data.ai[1].value));	//PumpFB
 			strcat(gStatus,str);
 			sprintf(str, "%04X",(int)(100+gAI_Data.ai[2].value));	//LDTemp
 			strcat(gStatus,str);
@@ -1700,7 +1698,7 @@ void POPS_Output (void)
 			sprintf(str, "%04X",(int)(10*gAI_Data.ai[4].value));	//LD_Mon
 			strcat(gStatus,str);
 			nantest =isnan(gAI_Data.ai[5].value);
-			if (nantest != 0) sprintf(str, "%04x",0);			// remove NaN math problem
+			if (nantest != 0) sprintf(str, "%04x",0);		// remove NaN math problem
 			else sprintf(str, "%04X",(int)(100+gAI_Data.ai[5].value));	//Temp
 			strcat(gStatus,str);
 			sprintf(str, "%04X",(int)(10*gAI_Data.ai[6].value));	//BatV
@@ -1719,19 +1717,19 @@ void POPS_Output (void)
 		{
 			strcpy(gStatus, inst );		
 			strcat(gStatus, gTimestamp);
-			sprintf(str,",%u,%.2f",gPart_Num,gPartCon_num_cc);		//Status
+			sprintf(str,",%u,%.2f",gPart_Num,gPartCon_num_cc);	//Status
 			strcat(gStatus, str);
-			sprintf(str, ",%u,%.2f",gBaseline,gSTD);				//Baseline info
+			sprintf(str, ",%u,%.2f",gBaseline,gSTD);		//Baseline info
 			strcat(gStatus, str);
-			sprintf(str,",%.2f", P);								//P 
+			sprintf(str,",%.2f", P);					//P 
 			strcat(gStatus,str);
-			sprintf(str,",%.2f",gAI_Data.ai[0].value);				//AI Flow
+			sprintf(str,",%.2f",gAI_Data.ai[0].value);		//AI Flow
 			strcat(gStatus,str);
-			sprintf(str,",%.2f",gAI_Data.ai[2].value);				//AI LDTemp
+			sprintf(str,",%.2f",gAI_Data.ai[2].value);		//AI LDTemp
 			strcat(gStatus,str);
-			sprintf(str,",%.2f",gAI_Data.ai[4].value);				//AI LD_Mon
+			sprintf(str,",%.2f",gAI_Data.ai[4].value);		//AI LD_Mon
 			strcat(gStatus,str);
-			sprintf(str,",%.2f",gAI_Data.ai[5].value);				//AI Temp
+			sprintf(str,",%.2f",gAI_Data.ai[5].value);		//AI Temp
 			strcat(gStatus,str);
 			for (i=0; i<Bins; i++)									//Histogram
 			{	
@@ -1746,7 +1744,7 @@ void POPS_Output (void)
 		{
 			strcpy(gStatus, inst );		
 			//strcat(gStatus, gTimestamp);
-			sprintf(str,"%.2f",gPartCon_num_cc);					//Status
+			sprintf(str,"%.2f",gPartCon_num_cc);			//Status
 			strcat(gStatus, str);
 ;
 			for (i=0; i<Bins; i++)									//Histogram
@@ -1757,10 +1755,10 @@ void POPS_Output (void)
 			sprintf(str,"\r\n");									//add cr lf
 			strcat(gStatus, str);
 		}
-		else			//default to iMet
+		else									//default to iMet
 		{
 			strcpy(gStatus,"xdata=3801");
-			sprintf(str, "%04X",(int)gPartCon_num_cc);			//Particle Concentration
+			sprintf(str, "%04X",(int)gPartCon_num_cc);		//Particle Concentration
 			strcat(gStatus,str);
 			if ((gAI_Data.ai[0].value >= 0.) && (gAI_Data.ai[0].value < 10.))
 			{
@@ -1777,7 +1775,7 @@ void POPS_Output (void)
 			//     gAI_Data.ai[5].value = external thermistor
 			
 			nantest =isnan(temp_out);
-			if (nantest != 0) temp_out = 0.;		// remove NaN math problem
+			if (nantest != 0) temp_out = 0.;				// remove NaN math problem
 
 			strcat(gStatus,str);
 
@@ -1875,11 +1873,11 @@ int Open_Serial(int port, int baud)
 			break;
    }
 
-   options.c_iflag = IGNPAR ;	//ignore partity errors, CR -> newline
+   options.c_iflag = IGNPAR ;		//ignore partity errors, CR -> newline
    options.c_oflag = 0;
    options.c_lflag = 0;
-   options.c_cc[VTIME] = 0; 	// Don't wait for time
-   options.c_cc[VMIN] = 0;  	// minimum characters is 0
+   options.c_cc[VTIME] = 0; 		// Don't wait for time
+   options.c_cc[VMIN] = 0;  		// minimum characters is 0
    tcflush(file, TCIFLUSH);		//discard file information not transmitted
    tcsetattr(file, TCSANOW, &options);	//changes occur immmediately
 
@@ -1920,8 +1918,8 @@ int Send_Serial(int UART, char msg[])
 
    int count, len;
 
-   if ((count = write(UART, msg, (strlen(msg))))<0)		//send the string without
-														//null termination
+   if ((count = write(UART, msg, (strlen(msg))))<0)	//send the string without
+								//null termination
    {
 	 strcat(gMessage,"Failed to write to the output - UART\n");
 	 return -1;
@@ -1947,9 +1945,9 @@ int Read_Serial(int UART)
 
    int count;
 // Buffer for receiving data = gCMD[512] global variable;
-   if ((count = read(UART, (void*)gCMD, 512)) > 0)		//read the string
+   if ((count = read(UART, (void*)gCMD, 512)) > 0)	//read the string
    {
-		gCMD[count]=0;	 //There is no null character sent
+		gCMD[count]=0;	 			//There is no null character sent
 		return count;
    }
    else return -1;
@@ -1967,9 +1965,9 @@ int Read_Serial(int UART)
 
 void Calc_Baseline( void )
 {
-	double bl = 0.;					// calculation of Baseline
+	double bl = 0.;				// calculation of Baseline
 	double var = 0.;				// varience of Baseline
-	int i;							// Step for baseline address
+	int i;						// Step for baseline address
 
 	/* Read PRU1 RAM memory. */
 
@@ -2006,7 +2004,7 @@ void Calc_Baseline( void )
 
 void Read_RawData( void )
 {
-	int i;							// Step for address
+	int i;						// Step for address
 
 	/* Read PRU0 RAM memory. */
 
@@ -2164,7 +2162,7 @@ void Write_Files(void)
 	}
 
 	gPart_Num = gArray_Size; // Pass the value for in-lineing
-	gArray_Size = 0;			// Clear these for the next counts
+	gArray_Size = 0;				// Clear these for the next counts
 	gRaw.ct = 0;
 
 }
@@ -2187,16 +2185,16 @@ void Implement_CMD(int source)
 	float value;
 	if(source == 1)		// UART1, 0-9 CMDS
 	{
-		if (!strncmp(gCMD, "0", 1)) makeFileNames(); 	//NewFile
-		if (!strncmp(gCMD, "1", 1))	gSkip_Save = 0;		//No Skip Save
+		if (!strncmp(gCMD, "0", 1)) makeFileNames(); 		//NewFile
+		if (!strncmp(gCMD, "1", 1))	gSkip_Save = 0;	//No Skip Save
 		if (!strncmp(gCMD, "2", 1)) gSkip_Save = 1;		//Skip 1 (save 1of 2)
-		if (!strncmp(gCMD, "3", 1))	gSkip_Save = 4;		//Skip 4 (save 1 of 5)
-		if (!strncmp(gCMD, "4", 1))	gSkip_Save = 9;		//Skip 9 (save 1 of 10)
-		if (!strncmp(gCMD, "5", 1))	;					//Available
-		if (!strncmp(gCMD, "6", 1))	;					//Available
-		if (!strncmp(gCMD, "7", 1))	;					//Available
+		if (!strncmp(gCMD, "3", 1))	gSkip_Save = 4;	//Skip 4 (save 1 of 5)
+		if (!strncmp(gCMD, "4", 1))	gSkip_Save = 9;	//Skip 9 (save 1 of 10)
+		if (!strncmp(gCMD, "5", 1))	;			//Available
+		if (!strncmp(gCMD, "6", 1))	;			//Available
+		if (!strncmp(gCMD, "7", 1))	;			//Available
 		if (!strncmp(gCMD, "8", 1))	gStop = true;		//Shutdown
-		if (!strncmp(gCMD, "9", 1))	gReboot = true;		//Reboot
+		if (!strncmp(gCMD, "9", 1))	gReboot = true;	//Reboot
 		memset(&gCMD[0],0,sizeof(gCMD));				//Clear the command
 	}
 	if(source == 2)
@@ -2412,7 +2410,7 @@ MAX5802_status MAX5802_set_internal_reference( short unsigned int uchReferenceCo
 	uchCommandToSend &= 0x07;  // mask off all but 3 LSBs
 	uchCommandToSend |= 0x70;  // set the REF command bit
 
-// REF command is 0x7-  where bit[3]=0 and bit[2:0] is 0-7
+       // REF command is 0x7-  where bit[3]=0 and bit[2:0] is 0-7
 	uchTxBuffer[0] = uchCommandToSend;
 	uchTxBuffer[1] = 0x00;
 	uchTxBuffer[2] = 0x00;
@@ -2428,7 +2426,7 @@ MAX5802_status MAX5802_set_internal_reference( short unsigned int uchReferenceCo
 	   return MAX5802_status_i2c_transfer_error;
     }
 
-	// Send I2C reference command
+    // Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	   strcat(gMessage,"Failed to set MAX5802 internal reference.\n");
@@ -2474,7 +2472,7 @@ MAX5802_status MAX5802_send_sw_clear(void)
 	   return MAX5802_status_i2c_transfer_error;
     }
 
-	// Send I2C reference command
+    // Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	   strcat(gMessage, "Failed to send MAX5802 sw clear.\n");
@@ -2492,8 +2490,8 @@ MAX5802_status MAX5802_send_sw_clear(void)
 //
 // 	Send a software reset (SW_RESET) command to the MAX5802.
 //
-//			All CODE, DAC and control registers are cleared to their power-on values.
-//			Sends the three byte command = 0x359630
+//	All CODE, DAC and control registers are cleared to their power-on values.
+//	Sends the three byte command = 0x359630
 //
 //  Returns: MAX5802_status (ok or error)
 //
@@ -2505,7 +2503,7 @@ MAX5802_status MAX5802_send_sw_reset(void)
 	int file;
 
 	// Send SW RESET (0x35 96 30)
-	uchTxBuffer[0] = 0x51;  // CODE command + All 8 DACs address
+	uchTxBuffer[0] = 0x51;  		// CODE command + All 8 DACs address
 	uchTxBuffer[1] = 0x00;
 	uchTxBuffer[2] = 0x00;
 
@@ -2520,7 +2518,7 @@ MAX5802_status MAX5802_send_sw_reset(void)
 	   return MAX5802_status_i2c_transfer_error;
     }
 
-	// Send I2C reference command
+    // Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	   strcat(gMessage, "Failed to send MAX5802 sw reset.\n");
@@ -2538,13 +2536,13 @@ MAX5802_status MAX5802_send_sw_reset(void)
 //
 // 	Send a software clear (SW_CLEAR) command to the MAX5802.
 //
-//			All CODE registers are set to 1 of 5 possible default states, based on
-//				uchDefaultCodeSetting:
-// 			MAX5802_DEFAULT_M_ZNOT: set dac's CODE register based on M/Z pin setting
-//			MAX5802_DEFAULT_ZERO: set dac's CODE register to zero
-//			MAX5802_DEFAULT_MID: set dac's CODE register to mid scale
-//			MAX5802_DEFAULT_FULL: set dac's CODE register to full scale
-//			MAX5802_DEFAULT_RETURN: set dac's code register = RETURN register
+//		All CODE registers are set to 1 of 5 possible default states, based on
+//			uchDefaultCodeSetting:
+// 		MAX5802_DEFAULT_M_ZNOT: set dac's CODE register based on M/Z pin setting
+//		MAX5802_DEFAULT_ZERO: set dac's CODE register to zero
+//		MAX5802_DEFAULT_MID: set dac's CODE register to mid scale
+//		MAX5802_DEFAULT_FULL: set dac's CODE register to full scale
+//		MAX5802_DEFAULT_RETURN: set dac's code register = RETURN register
 //
 //  Returns: MAX5802_status (ok or error)
 //
@@ -2570,18 +2568,20 @@ MAX5802_status MAX5802_set_default_DAC_settings(void)
 	uchTxBuffer[0] = 0x60;
 	uchTxBuffer[1] = 0x03;
 	uchTxBuffer[2] = 0x00;
-	// Send I2C reference command
+
+    // Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	   strcat(gMessage, "Failed to set default DAC settings.\n");
 	   return MAX5802_status_i2c_transfer_error;
     }
 
-    // Send Power (0x40 03 00)
+       // Send Power (0x40 03 00)
 	uchTxBuffer[0] = 0x40;
 	uchTxBuffer[1] = 0x03;
 	uchTxBuffer[2] = 0x00;
-	// Send I2C reference command
+
+    // Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	   strcat(gMessage, "Failed to set default DAC settings.\n");
@@ -2621,7 +2621,7 @@ MAX5802_status MAX5802_initialize(void)
 	delay(100);
 
 	// Set internal reference to 4.096V
-    nReturnValue = MAX5802_set_internal_reference(MAX5802_4096_MV_REF);
+       nReturnValue = MAX5802_set_internal_reference(MAX5802_4096_MV_REF);
 
 	delay(100);
 
@@ -2660,9 +2660,9 @@ MAX5802_status MAX5802_set_CODE_register(unsigned short int uchChannelToSet,
 		uchChannel = uchChannelToSet;
 
 	// Send the CODE command
-	uchTxBuffer[0] = 0x00;  // The base CODEn command is 0x80
-	uchTxBuffer[0] |= uchChannel;	 // Set channel #0-1
-	uchTxBuffer[1] = ((unDACValue & 0x0FF0) >> 4);  // MSB data
+	uchTxBuffer[0] = 0x00;  				// The base CODEn command is 0x80
+	uchTxBuffer[0] |= uchChannel;	 		// Set channel #0-1
+	uchTxBuffer[1] = ((unDACValue & 0x0FF0) >> 4); // MSB data
 	uchTxBuffer[2] = ((unDACValue & 0x000F) << 4);	// LSB DATA (aligned to upper 4 bits)
 
 	if((file=open("/dev/i2c-1", O_RDWR)) < 0)
@@ -2676,7 +2676,7 @@ MAX5802_status MAX5802_set_CODE_register(unsigned short int uchChannelToSet,
 	 return MAX5802_status_i2c_transfer_error;
     }
 
-	//Send I2C reference command
+    //Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	 strcat(gMessage, "Failed to send MAX5802 set CODE register.\n");
@@ -2704,8 +2704,8 @@ MAX5802_status MAX5802_set_CODE_register(unsigned short int uchChannelToSet,
 
 MAX5802_status MAX5802_LOAD_DAC_from_CODE_register(short unsigned int uchChannelToSet)
 {
-	unsigned char uchTxBuffer[3];
-	short unsigned int uchChannel=0x00;
+    unsigned char uchTxBuffer[3];
+    short unsigned int uchChannel=0x00;
     int file;
 
 	if(uchChannelToSet > 0x08)
@@ -2714,10 +2714,10 @@ MAX5802_status MAX5802_LOAD_DAC_from_CODE_register(short unsigned int uchChannel
 		uchChannel = uchChannelToSet;
 
 	// Send the LOAD command
-	uchTxBuffer[0] = 0x10;  // The base LOADn command is 0x10
-	uchTxBuffer[0] |= uchChannel;		// Set channel #0-1
-	uchTxBuffer[1] = 0x00;  // NULL - doesn't matter, data is ignored.
-	uchTxBuffer[2] = 0x00;  // NULL - doesn't matter, data is ignored.
+	uchTxBuffer[0] = 0x10;  		// The base LOADn command is 0x10
+	uchTxBuffer[0] |= uchChannel;	// Set channel #0-1
+	uchTxBuffer[1] = 0x00;  		// NULL - doesn't matter, data is ignored.
+	uchTxBuffer[2] = 0x00;  		// NULL - doesn't matter, data is ignored.
 
 	if((file=open("/dev/i2c-1", O_RDWR)) < 0)
 	{
@@ -2730,7 +2730,7 @@ MAX5802_status MAX5802_LOAD_DAC_from_CODE_register(short unsigned int uchChannel
 	   return MAX5802_status_i2c_transfer_error;
     }
 
-	// Send I2C reference command
+    // Send I2C reference command
     if(write(file, uchTxBuffer, 3)!=3)
     {
 	   strcat(gMessage, "Failed to send MAX5802 LOAD DAC from CODE register.\n");
@@ -2746,11 +2746,11 @@ MAX5802_status MAX5802_LOAD_DAC_from_CODE_register(short unsigned int uchChannel
 //
 //  MAX5802_set_DAC_12_bit_value
 //
-// 	Set the CODE register for the specified channel within the MAX5802 to the
-//		value unRegisterSetting, then move that value into the DAC register.
+//  Set the CODE register for the specified channel within the MAX5802 to the
+//	value unRegisterSetting, then move that value into the DAC register.
 //
 //  Parameters: short unsigned int uchChannelToSet (channel to set)
-// 				unsigned int unRegisterSetting (setting)
+// 		   unsigned int unRegisterSetting (setting)
 //
 //  Returns: MAX5802_status (ok or error)
 //
@@ -2803,28 +2803,28 @@ void delay(int nStopValue)
 //		p9.15 gpio0_31 input  pulldown  SDO on chip
 //		p9.16 gpio1_18 output pulldown  SDI on ship
 //
-//  Generally defined:	p8.9	gpio2_5		input	pulldown
-//						p8.10	gpio2_4		input	pulldown
-//						p8.11	gpio1_13	input	pullup
-//						p8.12	gpio1_12	output	pulldown
-//						p8.13	gpio0_23	output	pulldown
-//						p8.14	gpio0_26	output	pullup
+//  Generally defined:	p8.9	gpio2_5	input	pulldown
+//				p8.10	gpio2_4	input	pulldown
+//				p8.11	gpio1_13	input	pullup
+//				p8.12	gpio1_12	output	pulldown
+//				p8.13	gpio0_23	output	pulldown
+//				p8.14	gpio0_26	output	pullup
 //
 //******************************************************************************
 
 void Initialize_GPIO(void)
 {
-	iolib_init();					// initialize the library
+	iolib_init();				// initialize the library
 	iolib_setdir(9,13, DIR_OUT);	// SCLK
 	iolib_setdir(9,14, DIR_OUT);	// CBS
-	iolib_setdir(9,15, DIR_IN);		// SDO
+	iolib_setdir(9,15, DIR_IN);	// SDO
 	iolib_setdir(9,16, DIR_OUT);	// SDI
 	iolib_setdir(8,12, DIR_OUT);	// ms timing test pin
 	iolib_setdir(8,13, DIR_OUT);	// 1 sec timing test pin
 	iolib_setdir(8,14, DIR_OUT);	// AI out of range test
-	pin_high(9,14);					// initial value CSB (not selected)
-	pin_low(9,13);					// intial value SCLK
-	pin_low(9,16);					// initial value SDI
+	pin_high(9,14);			// initial value CSB (not selected)
+	pin_low(9,13);			// intial value SCLK
+	pin_low(9,16);			// initial value SDI
 	pin_low(8,12);
 	pin_low(8,13);
 	pin_low(8,14);
@@ -2852,11 +2852,11 @@ void Send_TP_CMD(unsigned int CMD, unsigned int del)
 	{
 		OUTBIT = (CMD & (1<<(7-i))) >> (7- i);
 		if(OUTBIT>0) pin_high(9,16);	// Set the data bit
-		else pin_low(9,16);				// Clear the data bit
+		else pin_low(9,16);			// Clear the data bit
 		delay(del);
-		pin_high(9,13);					// SCLK in the bit
+		pin_high(9,13);			// SCLK in the bit
 		delay(del);
-		pin_low(9,13);					// SCLK low
+		pin_low(9,13);			// SCLK low
 	}
 
 }
@@ -2913,7 +2913,7 @@ ms5607_status ms5607_reset(void)
 	pin_low(9,13);						// SCLK low to be sure
 	delay(del);
 	Send_TP_CMD(MS5607_CMD_RESET, del);
-	iolib_delay_ms(3);					// delay for reset
+	iolib_delay_ms(3);						// delay for reset
 	pin_high(9,14);						// de-select chip
 	return ms5607_status_ok;
 }
@@ -2938,14 +2938,14 @@ ms5607_status ms5607_read_prom(void)
 
 	for (i=0; i<8; i++)							// 8 values to read
 	{
-		pin_low(9,14);							// CSB chip selected
+		pin_low(9,14);						// CSB chip selected
 		delay(del);
 		Send_TP_CMD(MS5607_CMD_READ_PROM_BASE+2*i,del);
 		for (j=0; j<2; j++)
 		{
 			part[j]=Read_TP_Reply(del);
 		}
-		pin_high(9,14);							// CSB deselected
+		pin_high(9,14);						// CSB deselected
 		delay(del);
 		ms5607_prom_coeffs[i] = part[0]*0x100 + part[1];
 	}
@@ -2975,7 +2975,7 @@ ms5607_status ms5607_read_TP(void)
 	unsigned int del=1000;
 	short unsigned int	d1;	// Pressure
 	short unsigned int	d2;	// Temperature
-	short unsigned int read;// Read command
+	short unsigned int read;	// Read command
 	unsigned int buf[3];
     long unsigned int pres_raw;
 	long unsigned int temp_raw;
@@ -2989,17 +2989,17 @@ ms5607_status ms5607_read_TP(void)
     d2 = MS5607_CMD_CONVERT_D2_T;
     read = MS5607_CMD_READ_ADC;
 
-	pin_low(9,14);									// CSB select chip
+	pin_low(9,14);							// CSB select chip
 	delay(del);
-	Send_TP_CMD(d1,del);							// convert P
+	Send_TP_CMD(d1,del);						// convert P
 
 	// Wait for the pressure conversion
-	iolib_delay_ms(3);								// delay for reset
+	iolib_delay_ms(3);							// delay for reset
 
-	pin_high(9,14);									// CSB, deselect chip
+	pin_high(9,14);							// CSB, deselect chip
 
 	delay(del);
-	pin_low(9,14);									// CSB select chip
+	pin_low(9,14);							// CSB select chip
 	Send_TP_CMD(read,del);
 	for (i=0; i<3; i++)
 	{
@@ -3007,27 +3007,27 @@ ms5607_status ms5607_read_TP(void)
 	}
 	pres_raw =(long unsigned int) (buf[0]*0x10000 + buf[1]*0x100 + buf[2]);
 
-	pin_high(9,14);									// CSB, deselect chip
+	pin_high(9,14);							// CSB, deselect chip
 	delay(del);
 
-	pin_low(9,14);									// CSB select chip
+	pin_low(9,14);							// CSB select chip
 	delay(del);
-	Send_TP_CMD(d2,del);							// convert T
+	Send_TP_CMD(d2,del);						// convert T
 
 	// Wait for the temperature conversion
-	iolib_delay_ms(3);								// delay for reset
+	iolib_delay_ms(3);							// delay for reset
 
-	pin_high(9,14);									// CSB, deselect chip
+	pin_high(9,14);							// CSB, deselect chip
 
 	delay(del);
-	pin_low(9,14);									// CSB select chip
+	pin_low(9,14);							// CSB select chip
 	Send_TP_CMD(read,del);
 	for (i=0; i<3; i++)
 	{
 		buf[i]=Read_TP_Reply(del);
 	}
 
-	pin_high(9,14);									// CSB, deselect chip
+	pin_high(9,14);							// CSB, deselect chip
 
 	temp_raw =(long unsigned int) (buf[0]*0x10000) + (buf[1]*0x100) + (buf[2]);
 
@@ -3063,7 +3063,7 @@ ms5607_status ms5607_read_TP(void)
 
 unsigned char CRC4(long unsigned int n_prom[])
 {
-	int cnt;					//counter
+	int cnt;				//counter
 	long unsigned int crc_read;	//original value of crc
 	unsigned int  n_rem;		//crc remainder
 	unsigned char n_bit;
@@ -3071,7 +3071,7 @@ unsigned char CRC4(long unsigned int n_prom[])
 	n_rem = 0x00;
 	crc_read = n_prom[7];		//save original coefficients
 
-	n_prom[7] = (0xFF00 & (n_prom[7]));		//replace crc bit with 0
+	n_prom[7] = (0xFF00 & (n_prom[7]));	//replace crc bit with 0
 
 	for (cnt = 0; cnt < 16; cnt++)		//LSB and MSB
 	{
@@ -3093,8 +3093,8 @@ unsigned char CRC4(long unsigned int n_prom[])
 
 	n_rem = (0x000F & (n_rem >> 12));		//final 4 is CRC code
 
-	n_prom[7] = crc_read;					//restore the crc_read to its original value
-	return (n_rem ^ 0x0);					//crc4
+	n_prom[7] = crc_read;			//restore the crc_read to its original value
+	return (n_rem ^ 0x0);			//crc4
 }
 
 //******************************************************************************
@@ -3140,7 +3140,7 @@ void InitPRU_Mem(void)
 // Initial value of the Baseline + Threshold
 
     pru1DRAM_int[256] = (gBL_Start+0x30);	// BLTH
-    pru1DRAM_int[257] = gBL_Start;			// BL
+    pru1DRAM_int[257] = gBL_Start;		// BL
 //	 pru1DRAM_int[258] = 0x00010000;		// start of points
 
 	for(i=0; i<256; i++)
@@ -3181,7 +3181,7 @@ void Read_PRU_Data (void)
 
 // y_all is the new y data, 16 bytes at a time
 
-	if (m_head == m_tail) return; 		// no new data
+	if (m_head == m_tail) return; 			// no new data
 
 	if (m_tail > m_head)				// read buffer continuous
 		{
@@ -3191,21 +3191,21 @@ void Read_PRU_Data (void)
 				y_all[i-m_head] = pruSharedMem_int[i];
 			}
 		}
-	else								// to end of buffer and start of next
+	else							// to end of buffer and start of next
 		{
-			i_tail = mmax - m_head + m_tail - 1; // the -1 is because the buffer
-												 // is 0..3071
-			for (i = m_head; i < mmax; i++) 	 // m_head..3071
+			i_tail = mmax - m_head + m_tail - 1; 	// the -1 is because the buffer
+									// is 0..3071
+			for (i = m_head; i < mmax; i++) 	// m_head..3071
 			{
 				y_all[i-m_head] = pruSharedMem_int[i];
 			}
 
-			for (i = 0; i < m_tail; i++)		 // 0..m_tail-1
+			for (i = 0; i < m_tail; i++)	// 0..m_tail-1
 			{
 				y_all[i+mmax-m_head] = pruSharedMem_int[i];
 			}
 		}
-	m_head=m_tail;				// Start of next time through
+	m_head=m_tail;					// Start of next time through
 	for (j=0; j< i_tail; j+=2)
 	{
 		if(gArray_Size < 29999) // ignore any data over 30,000 particles in one second
