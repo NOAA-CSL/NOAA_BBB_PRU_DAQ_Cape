@@ -9,13 +9,13 @@
 // Contact : laurel.a.watts@noaa.gov
 // Date	 : 15 Aug 2016
 //
-// Description - This program controls the POPS
+// Description - This program controls the Printed Optical Particle Spectrometer (POPS)
 //		instrument with Analog Out, reads the onboard ADC channels and
 //		converts them to actual readings, handles time
 //		and date stamps, and writes data to files on the BBB.
-//		The peak data is read on the PRUs at 4 MHz, and
+//		The particle data is read on the PRUs at 4 MHz, and
 //		a baseline and data point determined and passed to the BBB.
-//		For each peak the width (number of points), baseline, peak
+//		For each particle the width (number of points), baseline, peak
 //		and position is reported. UART and UDP communications are 
 //		implemented with two channels each.  The configuration file
 //		POPS_BBB.cfg is used to configure the instrument parameters.
@@ -81,17 +81,17 @@ to use this software package, including references to third-party libraries, for
 purposes, you must abide by their terms of use and license restrictions.
 
 Non-government code and/or software libraries referenced by this software package:
- 1.	GNU (General Public Software) License for various packages that must be installed to 
- make the software compile and function.	 These include the Beaglebone Black Debian 
+ 1. GNU (General Public Software) License for various packages that must be installed to 
+ make the software compile and function. These include the Beaglebone Black Debian 
  operating system, gcc, libconfig, ntp, usbmount, iolib, minicom, libtool, perl, bison and 
  flex.
- 2.	TI (Texas Instruments, Inc) public software and documentation are used for compiling 
+ 2. TI (Texas Instruments, Inc) public software and documentation are used for compiling 
  the binary PRU code (PASM and Code Composer Studio).
- 3.	MAXUM software examples and documentation were used for programming the MAX5802 analog 
+ 3. MAXUM software examples and documentation were used for programming the MAX5802 analog 
  out chip.
- 4.	Measurement Specialties, Inc software examples and documentation were used for 
+ 4. Measurement Specialties, Inc software examples and documentation were used for 
  programming the MS5606 barometric pressure and temperature chip.
- 5.	Code examples were used as a starting point for several parts of the application from 
+ 5. Code examples were used as a starting point for several parts of the application from 
  Derek Molloy (2015) Exploring Beaglebone John Wiley & Sons, Inc.
  
 This notice, in its entirety, shall be included in all copies or substantial portions of 
@@ -142,29 +142,29 @@ the Software.*/
 //
 //******************************************************************************
 
-#define Billion 1000000000L			        // For time conversion
-#define PRU_NUM0 0					        // PRU 0 high byte
-#define PRU_NUM1 1					        // PRU 1 low byte and ctrl
+#define Billion  1000000000L                    // For time conversion
+#define PRU_NUM0 0                              // PRU 0 high byte
+#define PRU_NUM1 1                              // PRU 1 low byte and ctrl
 
 // MAX5802 Constants
-#define MAX5802_I2C_WADDR	        (0x0F)	// A1 and A0 to gnd.
-#define MAX5802_2500_EXT_REF        (0)		// 2.500V external reference for AO
-#define MAX5802_2500_MV_REF	        (5)		// 2.500V internal reference for AO
-#define MAX5802_2048_MV_REF	        (6)		// 2.048V internal reference for AO
-#define MAX5802_4096_MV_REF	        (7)		// 4.096V internal reference for AO
-#define MAX5802_DEFAULT_RETURN      (0x80)  // Rest sel DAC channel(s) to value in RETURN reg
+#define MAX5802_I2C_WADDR               (0x0F)	// A1 and A0 to gnd.
+#define MAX5802_2500_EXT_REF            (0)     // 2.500V external reference for AO
+#define MAX5802_2500_MV_REF             (5)     // 2.500V internal reference for AO
+#define MAX5802_2048_MV_REF             (6)     // 2.048V internal reference for AO
+#define MAX5802_4096_MV_REF             (7)     // 4.096V internal reference for AO
+#define MAX5802_DEFAULT_RETURN          0x80    // Rest sel DAC channel(s) to value in RETURN reg
 
 // MS5607 Constants
-#define MS5607_CONV_DELAY_MS	    (2.5)	// ms for T and P
+#define MS5607_CONV_DELAY_MS            (2.5)   // ms for T and P
 
 // MS5607 Commands
-#define MS5607_CMD_RESET		    (0x1E)	// Reset P and T
-#define MS5607_CMD_READ_ADC		    (0x00)	// Read T&P data
-#define MS5607_CMD_READ_PROM_BASE	(0xA0)	// Coeficient vase address xA0 to xAE
-#define MS5607_CMD_CONVERT_D1_P		(0x44)	// Convert P 1024 resolution
-#define MS5607_CMD_CONVERT_D2_T		(0x54)	// Convert T 1024 resolution
+#define MS5607_CMD_RESET                (0x1E)  // Reset P and T
+#define MS5607_CMD_READ_ADC             (0x00)  // Read T&P data
+#define MS5607_CMD_READ_PROM_BASE       (0xA0)  // Coeficient vase address xA0 to xAE
+#define MS5607_CMD_CONVERT_D1_P         (0x44)  // Convert P 1024 resolution
+#define MS5607_CMD_CONVERT_D2_T         (0x54)  // Convert T 1024 resolution
 
-#define WATCHDOG "/dev/watchdog"		 	// For watchdog timer
+#define WATCHDOG "/dev/watchdog"                // For watchdog timer
 
 typedef enum MAX5802_status
 {
