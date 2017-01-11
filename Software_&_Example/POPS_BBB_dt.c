@@ -1,7 +1,7 @@
 /*
 // Filename: POPS_BBB.c
 // Version: 2.0
-// Cape Version: Rev2.0 7 Dec 2016
+// Cape Version: 20160612
 // Version with point timing.
 //
 // Project: NOAA - POPS
@@ -15,8 +15,8 @@
 //		and date stamps, and writes data to files on the BBB.
 //		The particle data is read on the PRUs at 4 MHz, and
 //		a baseline and data point determined and passed to the BBB.
-//		For each particle the width (number of points), baseline, peak
-//		and position is reported. UART and UDP communications are 
+//		For each particle the peak above baseline, width (number or points),
+//		and time since last point in us is reported. UART and UDP communications are 
 //		implemented with two channels each.  The configuration file
 //		POPS_BBB.cfg is used to configure the instrument parameters.
 //
@@ -405,7 +405,7 @@ void main()
 {
 
     int i, j, ret, SerialTest, lp, first_call, UDPRec, UDPSend, ieq, eqct;
-    struct timeval	 LoopStart, LoopStop, LoopLeft, TimeNow;
+    struct timeval  LoopStart, LoopStop, LoopLeft, TimeNow;
     char * str;
     MAX5802_status nReturnValue;
     ms5607_status stat;
@@ -3404,7 +3404,7 @@ int UDP_Read_Data(int fd, int i)
     if (reclen > 0)
     {
         gCMD[reclen] = 0;                    // add C zero term
-	}
+    }
 	
     return reclen;
 }
