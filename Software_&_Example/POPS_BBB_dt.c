@@ -1,13 +1,13 @@
 /*
 // Filename: POPS_BBB.c
-// Version : 1.0
+// Version: 2.0
 // Cape Version: Rev2.0 7 Dec 2016
 // Version with point timing.
 //
-// Project : NOAA - POPS
-// Author	 : Laurel Watts
-// Contact : laurel.a.watts@noaa.gov
-// Date	 : 7 Dec 2016
+// Project: NOAA - POPS
+// Author: Laurel Watts
+// Contact: laurel.a.watts@noaa.gov
+// Date	: 7 Dec 2016
 //
 // Description - This program controls the Printed Optical Particle Spectrometer (POPS)
 //		instrument with Analog Out, reads the onboard ADC channels and
@@ -21,7 +21,7 @@
 //		POPS_BBB.cfg is used to configure the instrument parameters.
 //
 // Revision History:
-//	1.0	First public version
+//  1.0	First public version
 //  2.0 Add timing for particles. This changes the Read_PRU_Data, Write_Files and the PRU
 //  programs.
 */
@@ -421,7 +421,7 @@ void main()
     {
         printf("You must run this program as root. Exiting.\n");
         exit(EXIT_FAILURE);
-	}
+    }
 	
 //******************************
 // Read the configuration file
@@ -781,8 +781,8 @@ Shutdown:
 
     gAO_Data.ao[0].set_V = 0.0;
     gAO_Data.ao[1].set_V = 0.0;
-    Set_AO(0,0.0);		//Set AO0 to 0.0
-    Set_AO(1,0.0);		//Set AO1 to 0.0
+    Set_AO(0,0.0);      //Set AO0 to 0.0
+    Set_AO(1,0.0);      //Set AO1 to 0.0
 
     pin_low(8,13);
     iolib_free();       //Clear GPIO
@@ -1903,8 +1903,8 @@ int Send_Serial(int UART, char msg[])
 {
     int count, len;
 
-    if ((count = write(UART, msg, (strlen(msg))))<0)	//send the string without
-								                        //null termination
+    if ((count = write(UART, msg, (strlen(msg))))<0)    //send the string without
+                                                        //null termination
     {
         strcat(gMessage,"Failed to write to the output - UART\n");
         return -1;
@@ -1960,7 +1960,7 @@ void Calc_Baseline( void )
     {
         gRawBL_Data[2*i] = (double)((pru1DRAM_int[i] & 0xFFFF0000) >> 16);
         gRawBL_Data[2*i+1] = (double)(pru1DRAM_int[i] & 0x0000FFFF);
-        bl = bl +	 (gRawBL_Data[2*i] + gRawBL_Data[2*i+1]);
+        bl = bl + (gRawBL_Data[2*i] + gRawBL_Data[2*i+1]);
     }
 
     bl = bl/512.0;
