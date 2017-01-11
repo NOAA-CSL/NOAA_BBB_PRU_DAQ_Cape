@@ -565,7 +565,7 @@ void main()
 // Start PRU0 and PRU1
 //*****************************
 
-    prussdrv_exec_program (PRU_NUM1, "./PRU1_All_2.bin");
+    prussdrv_exec_program (PRU_NUM1, "./PRU1_All_dt.bin");
     prussdrv_exec_program (PRU_NUM0, "./PRU0_ParData.bin");
     strcat(gMessage,"\tPRU1 and PRU0 are now running.\n");
 
