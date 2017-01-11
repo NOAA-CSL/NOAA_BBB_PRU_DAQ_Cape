@@ -248,7 +248,7 @@ char gBBB_SN[20] = {""};                    // BBB Serial Number
 char gPOPS_SN[20] = {""};                   // Instrument serial number
 char gDaughter_Board[20] = {""};            // Daughter board part number
 
-int	gStop = 0;                              // Global Stop, 1 = Stop
+int gStop = 0;                              // Global Stop, 1 = Stop
                                             // PRU1 bit r31.t11 low=Stop
 int gReboot = 0;                            // Global reboot, 1= reboot
 int gIntStatus=1;                           // Status integer. 1=startup, 3=run
@@ -786,7 +786,7 @@ Shutdown:
     Set_AO(1,0.0);		//Set AO1 to 0.0
 
     pin_low(8,13);
-    iolib_free();			//Clear GPIO
+    iolib_free();       //Clear GPIO
 
     Close_Serial(UART1);
     Close_Serial(UART2);
@@ -1764,7 +1764,7 @@ void POPS_Output (void)
             //     gAI_Data.ai[5].value = external thermistor
 			
         nantest =isnan(temp_out);
-        if (nantest != 0) temp_out = 0.;				// remove NaN math problem
+        if (nantest != 0) temp_out = 0.;                // remove NaN math problem
 
         strcat(gStatus,str);
 
@@ -1905,7 +1905,7 @@ int Send_Serial(int UART, char msg[])
     int count, len;
 
     if ((count = write(UART, msg, (strlen(msg))))<0)	//send the string without
-								//null termination
+								                        //null termination
     {
         strcat(gMessage,"Failed to write to the output - UART\n");
         return -1;
@@ -2171,15 +2171,15 @@ void Implement_CMD(int source)
     if(source == 1)		// UART1, 0-9 CMDS
     {
         if (!strncmp(gCMD, "0", 1)) makeFileNames();    //NewFile
-        if (!strncmp(gCMD, "1", 1))	gSkip_Save = 0;     //No Skip Save
+        if (!strncmp(gCMD, "1", 1)) gSkip_Save = 0;     //No Skip Save
         if (!strncmp(gCMD, "2", 1)) gSkip_Save = 1;     //Skip 1 (save 1of 2)
-        if (!strncmp(gCMD, "3", 1))	gSkip_Save = 4;     //Skip 4 (save 1 of 5)
-        if (!strncmp(gCMD, "4", 1))	gSkip_Save = 9;     //Skip 9 (save 1 of 10)
-        if (!strncmp(gCMD, "5", 1))	;                   //Available
-        if (!strncmp(gCMD, "6", 1))	;                   //Available
-        if (!strncmp(gCMD, "7", 1))	;                   //Available
-        if (!strncmp(gCMD, "8", 1))	gStop = true;       //Shutdown
-        if (!strncmp(gCMD, "9", 1))	gReboot = true;     //Reboot
+        if (!strncmp(gCMD, "3", 1)) gSkip_Save = 4;     //Skip 4 (save 1 of 5)
+        if (!strncmp(gCMD, "4", 1)) gSkip_Save = 9;     //Skip 9 (save 1 of 10)
+        if (!strncmp(gCMD, "5", 1)) ;                   //Available
+        if (!strncmp(gCMD, "6", 1)) ;                   //Available
+        if (!strncmp(gCMD, "7", 1)) ;                   //Available
+        if (!strncmp(gCMD, "8", 1)) gStop = true;       //Shutdown
+        if (!strncmp(gCMD, "9", 1)) gReboot = true;     //Reboot
         memset(&gCMD[0],0,sizeof(gCMD));                //Clear the command
     }
     if(source == 2)
@@ -2787,18 +2787,18 @@ void delay(int nStopValue)
 //	    p9.15 gpio0_31 input  pulldown  SDO on chip
 //	    p9.16 gpio1_18 output pulldown  SDI on ship
 //
-//  Generally defined:  p8.9	gpio2_5	    input	pulldown
-//	                    p8.10	gpio2_4	    input	pulldown
-//                      p8.11	gpio1_13	input	pullup
-//	                    p8.12	gpio1_12	output	pulldown
-//                      p8.13	gpio0_23	output	pulldown
-//                      p8.14	gpio0_26	output	pullup
+//  Generally defined:  p8.9    gpio2_5     input   pulldown
+//                      p8.10   gpio2_4     input   pulldown
+//                      p8.11   gpio1_13    input   pullup
+//                      p8.12   gpio1_12    output  pulldown
+//                      p8.13   gpio0_23    output  pulldown
+//                      p8.14   gpio0_26    output  pullup
 //
 //******************************************************************************
 
 void Initialize_GPIO(void)
 {
-    iolib_init();				    // initialize the library
+    iolib_init();                   // initialize the library
     iolib_setdir(9,13, DIR_OUT);    // SCLK
     iolib_setdir(9,14, DIR_OUT);    // CBS
     iolib_setdir(9,15, DIR_IN);	    // SDO
@@ -2806,9 +2806,9 @@ void Initialize_GPIO(void)
     iolib_setdir(8,12, DIR_OUT);    // ms timing test pin
     iolib_setdir(8,13, DIR_OUT);    // 1 sec timing test pin
     iolib_setdir(8,14, DIR_OUT);    // AI out of range test
-    pin_high(9,14);			        // initial value CSB (not selected)
-    pin_low(9,13);			        // intial value SCLK
-    pin_low(9,16);			        // initial value SDI
+    pin_high(9,14);                 // initial value CSB (not selected)
+    pin_low(9,13);                  // intial value SCLK
+    pin_low(9,16);                  // initial value SDI
     pin_low(8,12);
     pin_low(8,13);
     pin_low(8,14);
@@ -2836,11 +2836,11 @@ void Send_TP_CMD(unsigned int CMD, unsigned int del)
     {
         OUTBIT = (CMD & (1<<(7-i))) >> (7- i);
         if(OUTBIT>0) pin_high(9,16);    // Set the data bit
-        else pin_low(9,16);		        // Clear the data bit
+        else pin_low(9,16);             // Clear the data bit
         delay(del);
-        pin_high(9,13);			        // SCLK in the bit
+        pin_high(9,13);                 // SCLK in the bit
         delay(del);
-        pin_low(9,13);			        // SCLK low
+        pin_low(9,13);                  // SCLK low
     }
 
 }
@@ -2865,17 +2865,17 @@ unsigned int Read_TP_Reply(unsigned int del)
     for (i=0; i<8; i++)
     {
         delay(del);
-        pin_high(9,13);					    // SCLK high
+        pin_high(9,13);                     // SCLK high
         delay(del);
         if (is_high(9,15))
         {
-            reply |= (1 << (7- i));	        // Read and store data
+            reply |= (1 << (7- i));        // Read and store data
         }
         if (is_low(9,15))
         {
-            reply |= (0 << (7-i));	        // Read and store data
+            reply |= (0 << (7-i));         // Read and store data
         }
-        pin_low(9,13);					    // SCLK low
+        pin_low(9,13);                     // SCLK low
     }
     return reply;
 }
@@ -2893,12 +2893,12 @@ unsigned int Read_TP_Reply(unsigned int del)
 ms5607_status ms5607_reset(void)
 {
     unsigned int del=1000;
-    pin_low(9,14);				        // CSB chip selected
-    pin_low(9,13);					    // SCLK low to be sure
+    pin_low(9,14);                      // CSB chip selected
+    pin_low(9,13);                      // SCLK low to be sure
     delay(del);
     Send_TP_CMD(MS5607_CMD_RESET, del);
-    iolib_delay_ms(3);				    // delay for reset
-    pin_high(9,14);				        // de-select chip
+    iolib_delay_ms(3);                  // delay for reset
+    pin_high(9,14);                     // de-select chip
     return ms5607_status_ok;
 }
 
@@ -2975,15 +2975,15 @@ ms5607_status ms5607_read_TP(void)
 
     pin_low(9,14);                          // CSB select chip
     delay(del);
-    Send_TP_CMD(d1,del);				    // convert P
+    Send_TP_CMD(d1,del);                    // convert P
 
 // Wait for the pressure conversion
-    iolib_delay_ms(3);					    // delay for reset
+    iolib_delay_ms(3);                      // delay for reset
 
-    pin_high(9,14);						    // CSB, deselect chip
+    pin_high(9,14);                         // CSB, deselect chip
 
     delay(del);
-    pin_low(9,14);						    // CSB select chip
+    pin_low(9,14);                          // CSB select chip
     Send_TP_CMD(read,del);
     for (i=0; i<3; i++)
     {
@@ -2991,27 +2991,27 @@ ms5607_status ms5607_read_TP(void)
     }
     pres_raw =(long unsigned int) (buf[0]*0x10000 + buf[1]*0x100 + buf[2]);
 
-    pin_high(9,14);						    // CSB, deselect chip
+    pin_high(9,14);                         // CSB, deselect chip
     delay(del);
 
-    pin_low(9,14);						    // CSB select chip
+    pin_low(9,14);                          // CSB select chip
     delay(del);
-    Send_TP_CMD(d2,del);				    // convert T
+    Send_TP_CMD(d2,del);                    // convert T
 
 // Wait for the temperature conversion
-    iolib_delay_ms(3);					    // delay for reset
+    iolib_delay_ms(3);                      // delay for reset
 
-    pin_high(9,14);						    // CSB, deselect chip
+    pin_high(9,14);                         // CSB, deselect chip
 
     delay(del);
-    pin_low(9,14);						    // CSB select chip
+    pin_low(9,14);                          // CSB select chip
     Send_TP_CMD(read,del);
     for (i=0; i<3; i++)
     {
         buf[i]=Read_TP_Reply(del);
     }
 
-    pin_high(9,14);						    // CSB, deselect chip
+    pin_high(9,14);                         // CSB, deselect chip
 
     temp_raw =(long unsigned int) (buf[0]*0x10000) + (buf[1]*0x100) + (buf[2]);
 
@@ -3047,17 +3047,17 @@ ms5607_status ms5607_read_TP(void)
 
 unsigned char CRC4(long unsigned int n_prom[])
 {
-    int cnt;			                    //counter
-    long unsigned int crc_read;	            //original value of crc
-    unsigned int  n_rem;		            //crc remainder
+    int cnt;                                //counter
+    long unsigned int crc_read;             //original value of crc
+    unsigned int  n_rem;                    //crc remainder
     unsigned char n_bit;
 
     n_rem = 0x00;
-    crc_read = n_prom[7];		            //save original coefficients
+    crc_read = n_prom[7];                   //save original coefficients
 
-    n_prom[7] = (0xFF00 & (n_prom[7]));	    //replace crc bit with 0
+    n_prom[7] = (0xFF00 & (n_prom[7]));     //replace crc bit with 0
 
-    for (cnt = 0; cnt < 16; cnt++)		    //LSB and MSB
+    for (cnt = 0; cnt < 16; cnt++)          //LSB and MSB
     {
         if (cnt%2 == 1) n_rem ^= (unsigned short) ((n_prom[cnt>>1])) & 0x00FF;
         else n_rem ^= (unsigned short) (n_prom[cnt>>1]>>8);
@@ -3075,10 +3075,10 @@ unsigned char CRC4(long unsigned int n_prom[])
         }
     }
 
-    n_rem = (0x000F & (n_rem >> 12));	    //final 4 is CRC code
+    n_rem = (0x000F & (n_rem >> 12));     //final 4 is CRC code
 
-    n_prom[7] = crc_read;		    //restore the crc_read to its original value
-    return (n_rem ^ 0x0);		    //crc4
+    n_prom[7] = crc_read;           //restore the crc_read to its original value
+    return (n_rem ^ 0x0);           //crc4
 }
 
 //******************************************************************************
@@ -3123,9 +3123,9 @@ void InitPRU_Mem(void)
 
 // Initial value of the Baseline + Threshold
 
-    pru1DRAM_int[256] = (gBL_Start+0x30);	// BLTH
-    pru1DRAM_int[257] = gBL_Start;		// BL
-//	 pru1DRAM_int[258] = 0x00010000;		// start of points
+    pru1DRAM_int[256] = (gBL_Start+0x30);    // BLTH
+    pru1DRAM_int[257] = gBL_Start;           // BL
+//	 pru1DRAM_int[258] = 0x00010000;         // start of points
 
     for(i=0; i<256; i++)
     {
@@ -3165,39 +3165,39 @@ void Read_PRU_Data (void)
 
 // y_all is the new y data, 16 bytes at a time
 
-    if (m_head == m_tail) return; 		        // no new data
+    if (m_head == m_tail) return;               // no new data
 
-    if (m_tail > m_head)				        // read buffer continuous
+    if (m_tail > m_head)                        // read buffer continuous
     {
         i_tail = m_tail - m_head;
-        for(i = m_head; i < m_tail; i++)	    // m_head..m_tail-1
+        for(i = m_head; i < m_tail; i++)        // m_head..m_tail-1
         {
             y_all[i-m_head] = pruSharedMem_int[i];
         }
     }
-    else							            // to end of buffer and start of next
+    else                                        // to end of buffer and start of next
     {
 		i_tail = mmax - m_head + m_tail - 1;    // the -1 is because the buffer
                                                 // is 0..3071
-		for (i = m_head; i < mmax; i++) 	    // m_head..3071
+		for (i = m_head; i < mmax; i++)         // m_head..3071
 		{
 			y_all[i-m_head] = pruSharedMem_int[i];
 		}
 
-		for (i = 0; i < m_tail; i++)	        // 0..m_tail-1
+		for (i = 0; i < m_tail; i++)            // 0..m_tail-1
 		{
 			y_all[i+mmax-m_head] = pruSharedMem_int[i];
 		}
 	}
-    m_head=m_tail;					            // Start of next time through
+    m_head=m_tail;                              // Start of next time through
     for (j=0; j< i_tail; j+=2)
     {
         if(gArray_Size < 29999) // ignore any data over 30,000 particles in one second
         {
         gData.peak[gArray_Size].pos =(unsigned int) ((y_all[j] &  0xFFFF0000) >>16) ;   //lower 2 bytes
-        gData.peak[gArray_Size].max = (unsigned int) (y_all[j] &  0x0000FFFF) ;		    //top 2 bytes
+        gData.peak[gArray_Size].max = (unsigned int) (y_all[j] &  0x0000FFFF) ;         //top 2 bytes
         gData.peak[gArray_Size].w =(unsigned int) ((y_all[j+1] &  0xFFFF0000) >>16) ;   //lower 2 bytes
-        gData.peak[gArray_Size].satd = (unsigned int) (y_all[j+1] &	 0x0000FFFF) ;	    //top 2 bytes
+        gData.peak[gArray_Size].satd = (unsigned int) (y_all[j+1] &	 0x0000FFFF) ;      //top 2 bytes
         gArray_Size+=1;
         }
     }
@@ -3388,12 +3388,12 @@ int UDP_Read_Data(int fd, int i)
 {
     int reclen;
     struct sockaddr_in remaddr;
-    socklen_t addrlen = sizeof(remaddr);		/* length of addresses */
+    socklen_t addrlen = sizeof(remaddr);     /* length of addresses */
 	
     reclen = recvfrom(fd, gCMD, 512, 0, (struct sockaddr *)&remaddr, &addrlen);
     if (reclen > 0)
     {
-        gCMD[reclen] = 0;					// add C zero term
+        gCMD[reclen] = 0;                    // add C zero term
 	}
 	
     return reclen;
