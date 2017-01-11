@@ -3177,18 +3177,18 @@ void Read_PRU_Data (void)
     }
     else                                        // to end of buffer and start of next
     {
-		i_tail = mmax - m_head + m_tail - 1;    // the -1 is because the buffer
+        i_tail = mmax - m_head + m_tail - 1;    // the -1 is because the buffer
                                                 // is 0..3071
-		for (i = m_head; i < mmax; i++)         // m_head..3071
-		{
-			y_all[i-m_head] = pruSharedMem_int[i];
-		}
+        for (i = m_head; i < mmax; i++)         // m_head..3071
+        {
+            y_all[i-m_head] = pruSharedMem_int[i];
+        }
 
-		for (i = 0; i < m_tail; i++)            // 0..m_tail-1
-		{
-			y_all[i+mmax-m_head] = pruSharedMem_int[i];
-		}
-	}
+        for (i = 0; i < m_tail; i++)            // 0..m_tail-1
+        {
+            y_all[i+mmax-m_head] = pruSharedMem_int[i];
+        }
+    }
     m_head=m_tail;                              // Start of next time through
     for (j=0; j< i_tail; j+=2)
     {
@@ -3197,7 +3197,7 @@ void Read_PRU_Data (void)
         gData.peak[gArray_Size].pos =(unsigned int) ((y_all[j] &  0xFFFF0000) >>16) ;   //lower 2 bytes
         gData.peak[gArray_Size].max = (unsigned int) (y_all[j] &  0x0000FFFF) ;         //top 2 bytes
         gData.peak[gArray_Size].w =(unsigned int) ((y_all[j+1] &  0xFFFF0000) >>16) ;   //lower 2 bytes
-        gData.peak[gArray_Size].satd = (unsigned int) (y_all[j+1] &	 0x0000FFFF) ;      //top 2 bytes
+        gData.peak[gArray_Size].satd = (unsigned int) (y_all[j+1] &  0x0000FFFF) ;      //top 2 bytes
         gArray_Size+=1;
         }
     }
