@@ -1,5 +1,5 @@
 /*
-// Filename: POPS_BBB.c
+// Filename: POPS_BBB_dt.c
 // Version: 2.0
 // Cape Version: 20160612
 // Version with point timing.
@@ -19,6 +19,9 @@
 //		and time since last point in us is reported. UART and UDP communications are 
 //		implemented with two channels each.  The configuration file
 //		POPS_BBB.cfg is used to configure the instrument parameters.
+//
+// Run this program with the following command:
+//  popsdt "/media/uSD/POPS_BBB.cfg"
 //
 // Revision History:
 //  1.0	First public version
@@ -268,7 +271,7 @@ int msfd, sfd;                              // File descriptors for ms and s tim
 int gSkip_Save;                             // Skip n Between Save in peak files.
 int gn_between = 0;                         // Counter for skip.
 char gBaseAddr[25] = {""};                  // Base path for data files.
-char gPOPS_BBB_cfg[20] = {""};              // POPS BBB configuration file
+char gPOPS_BBB_cfg[30] = {""};              // POPS BBB configuration file
 char gHK_File[50] = {""};                   // Path for Housekeeping File.
 char gPeakFile[50] = {""};                  // Path for Peak File.
 char gLogFile[50] = {""};                   // Path for Log File.
@@ -401,7 +404,7 @@ struct gUDP {
 //
 //******************************************************************************
 
-void main()
+void main(int argc, char *argv[])
 {
 
     int i, j, ret, SerialTest, lp, first_call, UDPRec, UDPSend, ieq, eqct;
@@ -426,7 +429,7 @@ void main()
 //******************************
 // Read the configuration file
 //******************************
-
+    strcat(gPOPS_BBB_cfg, argv[1]);
     Read_POPS_cfg();
 
 //******************************
@@ -864,7 +867,7 @@ int Read_POPS_cfg()
     config_init(&cfg);
 
 //	  Read the file. If there is an error, log it and goto Default.
-    if(! config_read_file(&cfg, "/media/uSD/POPS_BBB.cfg"))
+    if(! config_read_file(&cfg, gPOPS_BBB_cfg))
     {
         strcat(gMessage,"Error opening the POPS_BBB.cfg file.\n");
         goto Defaults;
@@ -879,7 +882,7 @@ int Read_POPS_cfg()
     else
     {
         strcat(gMessage, "No 'address' setting in configuration file.\n");
-        strcpy(gBaseAddr,"/media/uSD/Data/F");
+        strcpy(gBaseAddr,"/media/uSD/");
     }
 
 //Get the BBB Serial Number/Name
@@ -1315,17 +1318,15 @@ void makeFileNames(void)
     char blk[] = {""};                      // blank string for initialization
     char HK_Header[2000] ={""};             // HK header, comma del
     char ch;                                // for file copy
-
-    char config[] ="/media/uSD/POPS_BBB.cfg";
-    char cp_cmd[] = {""};
-
-
-    strcat(FileAddr, gBaseAddr);
+    char cp_cmd[] = {""};                   // copy command for configuration file
+    
+    sprintf(FileAddr,"%sData/F", gBaseAddr);
     strcat(FileAddr, gDatestamp);
     mkdir(FileAddr,0666);
 
 // Save the configuration file to today's directory.
-    strcat(cp_cmd,"cp /media/uSD/POPS_BBB.cfg ");
+    sprintf(cp_cmd, "cp %s", gPOPS_BBB_cfg);
+    strcat(cp_cmd," ");
     strcat(cp_cmd, FileAddr);
     system (cp_cmd);
 
@@ -1724,7 +1725,7 @@ void POPS_Output (void)
             sprintf(str, ",%d", gHist[i]);
             strcat(gStatus, str);
         }
-        printf(str,"\r\n");                                //add cr lf
+        sprintf(str,"\r\n");                                //add cr lf
         strcat(gStatus, str);
     }	
 		

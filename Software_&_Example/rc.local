@@ -26,6 +26,6 @@ mount /dev/mmcblk0p1 /media/uSD
 
 sleep 20
 cd /var/lib/cloud9/POPS
-/var/lib/cloud9/POPS/pops &
+/var/lib/cloud9/POPS/popsdt "/media/uSD/POPS_BBB.cfg" &
 
 exit 0
