@@ -26,3 +26,9 @@ up after the ON button is released.  When the BBB shuts down, 3.3V is removed fr
 if the ON button is not pressed, power is removed from the rest of the system.
 
 ![BBBCapeTop](https://cloud.githubusercontent.com/assets/23479476/24631333/67dacbaa-18af-11e7-96b3-28ceaf36fbef.jpg)
+
+POPS Cape top view.
+
+![BBBCapeBottom](https://cloud.githubusercontent.com/assets/23479476/24631332/67d9be0e-18af-11e7-90d4-8bdb3782f89e.jpg)
+
+POPS Cape bottom view.
