@@ -13,6 +13,8 @@ plate is not to be used, these signals are broken out on other connectors.
 
 Note: The BeagelBone Black is mounted upside down on the base plate.
 
+
+
 <p>The cape is powered by a signal labeled ‘V-Batt’.  This comes in via J1 pins 3 and 4,
 or if a baseplate is not used, via the connector named ‘BATTERY_IN’.  This voltage is 
 scaled and monitored via A/D channel AI6 pin P9.35.  To turn on the cape (which powers 
@@ -28,6 +30,8 @@ if the ON button is not pressed, power is removed from the rest of the system.
 ![BBBCapeTop](https://cloud.githubusercontent.com/assets/23479476/24631333/67dacbaa-18af-11e7-96b3-28ceaf36fbef.jpg)
 
 POPS Cape top view.
+
+
 
 ![BBBCapeBottom](https://cloud.githubusercontent.com/assets/23479476/24631332/67d9be0e-18af-11e7-90d4-8bdb3782f89e.jpg)
 
