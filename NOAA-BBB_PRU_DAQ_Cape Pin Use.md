@@ -1,6 +1,8 @@
-#Pin use for the NOAA BeagleBone Black PRU and DAQ Cape
+Pin use for the NOAA BeagleBone Black PRU and DAQ Cape
+======================================================
 
-## P8 46-Pin Connector
+P8 46-Pin Connector
+-------------------
 
 |*Pin*|*$PINS*|*Address*|*Mode*|*Name*|*Use*|
 |---|---|---|---|---|---|
@@ -51,7 +53,8 @@
 |P8.45|40 |0x8a0/0a0 |6 |pr1_pru1_pru_r31_0 |Low byte, bit 0 |
 |P8.46|41 |0x8a4/0a4 |6 |pr1_pru1_pru_r31_1 |Low byte, bit 1 |
 
-## P9 46-Pin Connector
+P9 46-Pin Connector
+-------------------
 
 |*Pin*|*$PINS*|*Address*|*Mode*|*Name*|*Use*|
 |---|---|---|---|---|---|
