@@ -1,6 +1,6 @@
 ![pops_bbb_noaa](https://cloud.githubusercontent.com/assets/23479476/21242758/babe1360-c30d-11e6-89c9-b6001e482500.JPG)
 
-# NOAA_BBB_PRU_DAQ_Cape
+# NOAA BeagleBone Black (BBB) PRU DAQ Cape
 
 <p>The NOAA BeagleBone Black PRU and DAQ Cape was developed for the NOAA Printed Optical Particle 
 Spectrometer (POPS) instrument that is used to make balloon and aircraft particle concentration measurements. The 
@@ -9,7 +9,8 @@ more information. This cape and software has been patented and is being presente
 free for public download, modification and use. The programs that are presented are for the POPS instrument, and are
 meant as an example and guide for developing other applications.
 
-##Cape Features:
+Cape Features
+-----------------
 
 * A high-speed LVDT serial interface using a DS90C124 deserializer.  It connects via a SATA cable to an 
 LT2203 16 bit A/D converter located on the photomultiplier (PMT) interface board, sampling at 4 MHz.
@@ -27,7 +28,8 @@ instrument's flow rate and laser power (0-5 V).
 * M24256 cape EEPROM.
 
 
-##Provided Information:
+Provided Information
+------------------------
 
 * This README.md.
 
@@ -41,7 +43,8 @@ correctly configure it to work with the cape.
 presented in this document as a table.
 
 
-##Hardware:
+Hardware
+------------
 
 * README.md file for the hardware.
 
@@ -49,7 +52,9 @@ presented in this document as a table.
 
 * BOM as an Excel spreadsheet for the boards.
 	
-##Software and Examples:
+    
+Software and Examples
+-------------------------
 
 * build and build_dt:  Scripts to build the *.c and *.p files provided.
 
