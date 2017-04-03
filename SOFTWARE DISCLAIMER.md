@@ -1,11 +1,13 @@
-#NOAA BeagleBone Black PRU and DAQ Cape Software Disclaimer
+NOAA BeagleBone Black PRU and DAQ Cape Software Disclaimer
+==========================================================
 ---
 <p>The United States Government makes no warranty, expressed or implied, as to the usefulness of this 
 software and documentation for any purpose. The U.S. Government, its instrumentalities, officers, 
 employees, and agents assume no responsibility (1) for the use of the software and documentation contained 
 in this package, or (2) to provide technical support to users.
 
-##USE OF GOVERNMENT DATA, PRODUCTS, AND SOFTWARE
+USE OF GOVERNMENT DATA, PRODUCTS, AND SOFTWARE
+----------------------------------------------
 
 <p>The information on government servers are in the public domain, unless specifically annotated 
 otherwise, and may be used without charge for any lawful purpose so long as you do not (1) claim it 
@@ -34,7 +36,8 @@ material obtained from the government must provide notice with such work(s) iden
 government material incorporated and stating that such material is not subject to copyright 
 protection.
 
-##USE OF THIRD-PARTY SOFTWARE AND INFORMATION
+USE OF THIRD-PARTY SOFTWARE AND INFORMATION
+-------------------------------------------
 
 <p>Third-party information are used under license from the individual third-party provider. This 
 third-party information may contain trade names, trademarks, service marks, logos, domain names, 
