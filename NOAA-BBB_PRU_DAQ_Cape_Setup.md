@@ -1,4 +1,5 @@
-#NOAA BeagleBone Black PRU and DAQ Cape Setup
+NOAA BeagleBone Black PRU and DAQ Cape Setup
+============================================
 
 <p>The NOAA BeagleBone Black PRU and DAQ Cape was designed for use with a small Printed Optical 
 Particle Spectrometer (POPS).  It well suited for many other applications, and is therefor presented
@@ -13,11 +14,12 @@ Cape.  These steps set up the operating system, the BeagleBone Black to the desi
 configuration, establish a network connection for software update and upload, and install the 
 services used by the cape, such as the real-time clock.  These install instruction assume that the 
 user has a basic knowledge of starting up a BeagleBone Black.  If not, see: [BeagleBone Getting 
-Started] (http://beagleboard.org/getting-started).
+Started](http://beagleboard.org/getting-started).
 <p>Tools to connect to the BeagleBone Black include the web-based Cloud9 interface, PuTTY (on Windows),
 and terminal programs on Windows, MAC, or Linux OS.
 
-##Part 1.  BealgeBone Black Setup
+Part 1.  BealgeBone Black Setup
+-------------------------------
 
 **Operating system.**  The version of the OS this cape is build around is 
 'BBB-eMMC-fasher-debian-7.5-2014-05-14-2gb.img' (available from BeagleBoard.org).  Write this image onto a 
@@ -122,21 +124,17 @@ over the configuration file.
 If all is right, this will build both PRU binaries and the pops executable.
 
 
-##Part 2.  BeagleBone Black PRU and DAQ Cape Setup
+Part 2.  BeagleBone Black PRU and DAQ Cape Setup
+------------------------------------------------
 
 Attach the NOAA_BBB_PRU_DAQ cape (with the clock battery installed) to the BeagleBone black with the 
 Beaglebone Black powered down and disconnected from the laptop.  Standoffs 46-pin will be required on 
 P8 and P9 as the cape is designed to mount on both sides.  The microcomputer system (BeagleBone Black 
-and NOAA cape) can be powered in two ways. If the Beaglebone black is only connected to the cape (without 
-using the baseplate) 9-18 V can be applies to "BATTERY IN" or the JP1 baseplate interface connector. 
-This can be done with a power supply or battery.
-
-DO NOT USE THE 5V INPUT AFTER THIS POINT (P1 on the BeagleBone Black), as damage may occur to the cape or the BeagleBone Black.  
-
-After the system is powered up, the connection to the 
+and NOAA cape) can be powered in two ways.  DO NOT USE THE 5V INPUT AFTER THIS POINT, as damage may 
+occur to the cape or the BeagleBone Black.  After the system is powered up, the connection to the 
 BeagleBone Black can be either through the USB or ethernet ports.
 
-**Set the time.**   The time is set by first updating the time from the internet and then write 
+**Set the time.**   The time is set by first updating the time from the internet and then writing 
 that time to the realtime clock.  From '/var/lib/cloud9/POPS':
 
     ntpdate -b -s -u time.nist.gov		
@@ -174,7 +172,9 @@ application for full data.
     minicom -b 115200 -o -D /dev/ttyO2 
 
 In this example UART1 is set to 9600 baud, and UART2 is set to 115200 baud.  
-##Other Information:
+
+Other Information:
+------------------
 
 **C Compiler and Programming.** To compile a C program:
 
