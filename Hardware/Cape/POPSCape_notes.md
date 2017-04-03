@@ -11,6 +11,8 @@ plate is not to be used, these signals are broken out on other connectors.
 
 ![POPS Instrument View](https://cloud.githubusercontent.com/assets/23479476/24631331/67d93452-18af-11e7-8163-dda7b6a48b0f.jpg)
 
+Note: The BeagelBone Black is mounted upside down on the base plate.
+
 <p>The cape is powered by a signal labeled ‘V-Batt’.  This comes in via J1 pins 3 and 4,
 or if a baseplate is not used, via the connector named ‘BATTERY_IN’.  This voltage is 
 scaled and monitored via A/D channel AI6 pin P9.35.  To turn on the cape (which powers 
@@ -22,3 +24,5 @@ regulates the 5V down to +3.3V and supplies it back to the cape  via pins P9.3 a
 Among other things, this 3.3V is then used to hold on FET T3 so the system remains powered 
 up after the ON button is released.  When the BBB shuts down, 3.3V is removed from P9 and 
 if the ON button is not pressed, power is removed from the rest of the system.
+
+![BBBCapeTop](https://cloud.githubusercontent.com/assets/23479476/24631333/67dacbaa-18af-11e7-96b3-28ceaf36fbef.jpg)
