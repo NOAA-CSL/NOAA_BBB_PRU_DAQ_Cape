@@ -1,4 +1,4 @@
-![pops_bbb_noaa](https://cloud.githubusercontent.com/assets/23479476/21242758/babe1360-c30d-11e6-89c9-b6001e482500.JPG)
+![POPS Instrument View](https://cloud.githubusercontent.com/assets/23479476/24631331/67d93452-18af-11e7-8163-dda7b6a48b0f.jpg)
 
 # NOAA BeagleBone Black (BBB) PRU DAQ Cape
 
