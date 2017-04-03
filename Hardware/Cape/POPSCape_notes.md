@@ -8,6 +8,7 @@ has some signal conditioning, and the rest of the instrument attaches to the bas
 Some signals are passed via the usual P8-P9 connectors, while other signals are passed to
 the base plate via JP1, a 14 pin connector of similar style as P8 and P9.  If a base 
 plate is not to be used, these signals are broken out on other connectors.
+
 ![POPS Instrument View](https://cloud.githubusercontent.com/assets/23479476/24631331/67d93452-18af-11e7-8163-dda7b6a48b0f.jpg)
 
 <p>The cape is powered by a signal labeled ‘V-Batt’.  This comes in via J1 pins 3 and 4,
