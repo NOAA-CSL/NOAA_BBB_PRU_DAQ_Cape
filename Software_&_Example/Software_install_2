@@ -1,0 +1,25 @@
+#!/bin/bash
+cd /var/lib/cloud9/POPS
+echo "Changing dirctory"
+cp NOAA* /lib/firmware
+echo "Copied NOAA files"
+cp libiofunc.a /usr/lib
+echo "Copied libiofunc.a"
+cp iolib.h /usr/include
+echo "Copied iolib.h"
+cp rc.local /etc/
+echo "Copied rc.local"
+cp clock_init.sh /usr/bin/
+echo "Copied clock_init.sh"
+cp rtc-ds1307.service /lib/systemd
+echo "Copied rtc-ds1307.service"
+cd /etc/systemd/system
+echo "Changed directory"
+ln /lib/systemd/rtc-ds1307.service rtc-ds1307.service
+echo "Linked rtc-ds1307.service"
+systemctl enable rtc-ds1307.service
+mkdir /media/uSD
+chmod 777 /media/uSD
+echo "Directory Made"
+echo "REBOOTING"
+shutdown -r now

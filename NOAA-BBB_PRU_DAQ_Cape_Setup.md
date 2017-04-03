@@ -127,11 +127,13 @@ If all is right, this will build both PRU binaries and the pops executable.
 Attach the NOAA_BBB_PRU_DAQ cape (with the clock battery installed) to the BeagleBone black with the 
 Beaglebone Black powered down and disconnected from the laptop.  Standoffs 46-pin will be required on 
 P8 and P9 as the cape is designed to mount on both sides.  The microcomputer system (BeagleBone Black 
-and NOAA cape) can be powered in two ways.  DO NOT USE THE 5V INPUT AFTER THIS POINT, as damage may 
+and NOAA cape) can be powered in two ways.  If the Beaglebone black is only connected to the cape (without 
+using the baseplate) 9-18 V can be applies to "BATTERY IN" or the JP1 baseplate interface connector. 
+This can be done with a power supply or battery.  DO NOT USE THE 5V INPUT AFTER THIS POINT, as damage may 
 occur to the cape or the BeagleBone Black.  After the system is powered up, the connection to the 
 BeagleBone Black can be either through the USB or ethernet ports.
 
-**Set the time.**   The time is set by first updating the time from the internet and then writing 
+**Set the time.**   The time is set by first updating the time from the internet and then write 
 that time to the realtime clock.  From '/var/lib/cloud9/POPS':
 
     ntpdate -b -s -u time.nist.gov		
