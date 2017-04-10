@@ -1,0 +1,10 @@
+[Unit]
+Description=POPS Display
+After=multi-user.target
+
+[Service]
+Type=Idle
+ExecStart=/bin/bash /home/debian/POPS/pops.sh
+
+[Install]
+WantedBy=multi-user.target
