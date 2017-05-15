@@ -194,6 +194,7 @@ void makeFileNames(void);
 int Read_POPS_cfg(void);
 void POPS_Output (void);
 void Write_Files(void);
+void  UpdatePumpTime(void);
 void ReadAI(void);
 int Open_Serial(int port, int baud);
 void Close_Serial (int UART);
@@ -248,6 +249,9 @@ char gCode_Version[25] = {""};              // Software version installed
 char gBBB_SN[20] = {""};                    // BBB Serial Number
 char gPOPS_SN[20] = {""};                   // Instrument serial number
 char gDaughter_Board[20] = {""};            // Daughter board part number
+
+double gPumpLife;                           // Pump Life, hours saved to file
+char gPumpFile[] = "/media/uSD/gPumpFile.txt";  // /media/uSD/gPumpFile
 
 int gStop = 0;                              // Global Stop, 1 = Stop
                                             // PRU1 bit r31.t11 low=Stop
@@ -439,6 +443,24 @@ void main()
 
     strcat(gMessage,gTimestamp);
     strcat(gMessage,"\tStarted program.\n");
+    
+//******************************
+// Git initail Pump Time
+//******************************
+    FILE *fp;
+    int num;
+    char pl[20];
+    if((fp =fopen(gPumpFile,"r" ))==NULL)
+    {
+        gPumpLife = 0.0;
+        fp= fopen(gPumpFile, "w+");
+    }
+    else
+    {
+         num = fscanf(fp,"%s", pl);
+         gPumpLife = atof(pl);
+    }
+    fclose(fp);    
 
  //*****************************
  // Initialize the AO - MAX5802
@@ -617,7 +639,18 @@ void main()
         Calc_Baseline();
         Check_Stop();
         if(gStop) goto Shutdown;
+        
+// Update the Pump Timer********************************************************
+        UpdatePumpTime();
+        
+        Read_PRU_Data();
+        first_call = 0;
+        getTimes();
 
+        Calc_Baseline();
+        Check_Stop();
+        if(gStop) goto Shutdown;
+        
 // Analog IN *******************************************************************
         ReadAI();
 
@@ -1315,6 +1348,8 @@ void makeFileNames(void)
     char blk[] = {""};                      // blank string for initialization
     char HK_Header[2000] ={""};             // HK header, comma del
     char ch;                                // for file copy
+    char binNames[1000];                    // Histogram Bin names (max = 883)
+    char str[] = {""};                      // string dummy
 
     char config[] ="/media/uSD/POPS_BBB.cfg";
     char cp_cmd[] = {""};
@@ -1365,6 +1400,13 @@ void makeFileNames(void)
     strcat(gHK_File, gDatestamp);
     strcat(gHK_File, ver);
     strcat(gHK_File, ".csv");
+    
+    for (i=0;i<gBins.nbins;i++)
+    {
+        strcat(binNames,",b");
+        sprintf(str,"%d",i);
+        strcat(binNames,str);
+    }
 
     fp = fopen(gHK_File, "w");
     strcpy(HK_Header,"DateTime, Status, PartCt, PartCon, BL, BLTH, STD, P, TofP");
@@ -1379,7 +1421,9 @@ void makeFileNames(void)
         strcat(HK_Header, gAO_Data.ao[i].name);
     }
     strcat(HK_Header,",BL_Start, TH_Mult, nbins, logmin, logmax, Skip_Save,");
-    strcat(HK_Header," MinPeakPts,MaxPeakPts, RawPts, [HISTOGRAM]\r\n");
+    strcat(HK_Header," MinPeakPts,MaxPeakPts, RawPts, PumpLife_hrs");
+    strcat(HK_Header,binNames);
+    strcat(HK_Header,"\r\n");
     fprintf( fp, HK_Header);
 
     fclose (fp);
@@ -1408,6 +1452,27 @@ void makeFileNames(void)
     strcat(gRawBLFile, ver);
     strcat(gRawBLFile, ".b");
 
+}
+
+//******************************************************************************
+//
+//  UpdatePumpTime
+//
+//  Increment the pump time and save as hours.
+//
+//******************************************************************************
+
+void UpdatePumpTime (void)
+{
+    FILE *fp;
+    int num;
+    fp =fopen(gPumpFile,"r+" );
+
+    gPumpLife+= 0.000277778;          //increment the pump life
+    
+    fseek(fp,0,SEEK_SET);
+    fprintf(fp,"%4.8f\r\n",gPumpLife);
+    fclose(fp);
 }
 
 //******************************************************************************
@@ -1565,6 +1630,9 @@ void POPS_Output (void)
         sprintf(str,",%.2f", gAO_Data.ao[i].set_V);
         strcat(fullstr,str);
     }
+    
+    sprintf(str, ",%.2f",gPumpLife);
+    strcat(fullstr, str);
 
     sprintf(str, ",%u,%.1f,%u,%.2f,%.2f",gBL_Start,gTH_Mult,gBins.nbins,
         gBins.logmin,gBins.logmax);
@@ -1572,7 +1640,7 @@ void POPS_Output (void)
 	
     sprintf(str, ",%i,%u,%u,%i",gSkip_Save,gMinPeakPts,gMaxPeakPts,gRaw.pts);
     strcat(fullstr, str);
-
+    
     for (i=0; i<gBins.nbins; i++)           //Histogram
     {	
         sprintf(str, ",%d", gHist[i]);
