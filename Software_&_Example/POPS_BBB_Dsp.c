@@ -251,8 +251,8 @@ char gBBB_SN[20] = {""};                    // BBB Serial Number
 char gPOPS_SN[20] = {""};                   // Instrument serial number
 char gDaughter_Board[20] = {""};            // Daughter board part number
 
-double gPumpLife;                          // Pump Life, hours saved to file
-char gPumpFile[100] = "/media/uSD/gPumpFile.txt";  // /media/uSD/gPumpFile
+double gPumpLife;                           // Pump Life, hours saved to file
+char gPumpFile[100] = "/media/usb0/gPumpFile.txt";  // /media/uSD/gPumpFile
 
 int gStop = 0;                              // Global Stop, 1 = Stop
                                             // PRU1 bit r31.t11 low=Stop
@@ -914,7 +914,7 @@ int Read_POPS_cfg()
     config_init(&cfg);
 
 //	  Read the file. If there is an error, log it and goto Default.
-    if(! config_read_file(&cfg, "/media/uSD/POPS_BBB.cfg"))
+    if(! config_read_file(&cfg, "/media/usb0/POPS_BBB.cfg"))
     {
         strcat(gMessage,"Error opening the POPS_BBB.cfg file.\n");
         goto Defaults;
@@ -929,7 +929,7 @@ int Read_POPS_cfg()
     else
     {
         strcat(gMessage, "No 'address' setting in configuration file.\n");
-        strcpy(gBaseAddr,"/media/uSD/Data/F");
+        strcpy(gBaseAddr,"/media/usb0/Data/F");
     }
 
 //Get the BBB Serial Number/Name
