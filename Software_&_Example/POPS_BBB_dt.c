@@ -1401,6 +1401,7 @@ void makeFileNames(void)
     strcat(gHK_File, ver);
     strcat(gHK_File, ".csv");
     
+    strcpy(binNames,blk);
     for (i=0;i<gBins.nbins;i++)
     {
         strcat(binNames,",b");
