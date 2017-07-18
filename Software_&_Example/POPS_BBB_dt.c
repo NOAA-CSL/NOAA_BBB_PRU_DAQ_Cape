@@ -1421,8 +1421,8 @@ void makeFileNames(void)
         strcat(HK_Header, ", ");
         strcat(HK_Header, gAO_Data.ao[i].name);
     }
-    strcat(HK_Header,",BL_Start, TH_Mult, nbins, logmin, logmax, Skip_Save,");
-    strcat(HK_Header," MinPeakPts,MaxPeakPts, RawPts, PumpLife_hrs");
+    strcat(HK_Header,", PumpLife_hrs, BL_Start, TH_Mult, nbins, logmin, logmax,");
+    strcat(HK_Header," Skip_Save, MinPeakPts,MaxPeakPts, RawPts");
     strcat(HK_Header,binNames);
     strcat(HK_Header,"\r\n");
     fprintf( fp, HK_Header);
