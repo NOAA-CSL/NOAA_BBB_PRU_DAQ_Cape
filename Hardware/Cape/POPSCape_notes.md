@@ -44,6 +44,7 @@ Two 10K thermistors are measured on the POPS instrument.  One is external to the
 The last signal on JP1 is named ‘PUSH_2_STOP’.  There is a button on the cape and can have a button on the baseplate.  This signal is buffered and presented to the BBB via P8.30.  It is monitored by the software and when asserted, (list the steps the software does, such as turn off laser, pump, stop taking data, close the files, run the shutdown sequence which removes the +3.3V signal from T3 and removes power to the BBB and cape).
 
 Analog In Scale Factors.
+
 AI0: Flow Signal.  5.036V from diff. pressure signal presents 1.8V to the BBB.
 AI1: Pump Feedback.  15.000V from pump control circuit presents 1.8V to BBB.
 AI2: Laser Temperature (10K Thermistor).  Max temperature is 80.24 deg. C which presents 1.8V to BBB.  25 deg. C presents 0.728V to BBB.
