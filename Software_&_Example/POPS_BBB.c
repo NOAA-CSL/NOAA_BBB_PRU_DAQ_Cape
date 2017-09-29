@@ -1,38 +1,40 @@
 /*
 // Filename: POPS_BBB.c
-// Version : 1.0
+// Version: 3.0
 // Cape Version: 20160612
-// First POPS Balloon version.
+// Version with point timing.
 //
-// Project : NOAA - POPS
-// Author	 : Laurel Watts
-// Contact : laurel.a.watts@noaa.gov
-// Date	 : 15 Aug 2016
+// Project: NOAA - POPS
+// Author: Laurel Watts
+// Contact: laurel.a.watts@noaa.gov
+// Date	: 30 Sept 2017
 //
-// Description - This program controls the Printed Optical Particle Spectrometer (POPS)
-//		instrument with Analog Out, reads the onboard ADC channels and
-//		converts them to actual readings, handles time
-//		and date stamps, and writes data to files on the BBB.
-//		The particle data is read on the PRUs at 4 MHz, and
-//		a baseline and data point determined and passed to the BBB.
-//		For each particle the peak above baseline, width (number of points),
-//		position and saturated points is reported. UART and UDP communications are 
-//		implemented with two channels each.  The configuration file
-//		POPS_BBB.cfg is used to configure the instrument parameters.
-//
-// Run this program with the following command:
-//  pops "/media/uSD/POPS_BBB.cfg"
+// Description - This program controls the Printed Optical Particle Spectrometer 
+// (POPS) instrument with Analog Out, reads the onboard ADC channels and
+// converts them to actual readings, handles time
+// and date stamps, and writes data to files on the BBB.
+// The particle data is read on the PRUs at 4 MHz, and
+// a baseline and data point determined and passed to the BBB.
+// For each particle the peak above baseline, width (number or points),
+// and time since last point in us is reported. UART and UDP communications are 
+// implemented with two channels each.  The configuration file
+// POPS_BBB.cfg is used to configure the instrument parameters.
 //
 // Revision History:
-//	1.0	First public version
+//  1.0	First public version
+//  2.0 Add timing for particles. This changes the Read_PRU_Data, Write_Files 
+//  and the PRU programs.
+//  3.0 Merge various versions of the POPS program to function on balloons, UAV, 
+//  Manta, WB57, etc with writing to either the uSD or usb drive. Config file 
+//  must be on the uSD card.
 */
 /*DISCLAIMER
 ----------------------------------------------
-The United States Government makes no warranty, expressed or implied, as to the usefulness 
-of this software and documentation for any purpose. The U.S. Government, its 
-instrumentalities, officers, employees, and agents assume no responsibility (1) for the 
-use of the software and documentation contained in this package, or (2) to provide 
-technical support to users.
+The United States Government makes no warranty, expressed or implied, as to the 
+usefulness of this software and documentation for any purpose. The U.S. 
+Government, its instrumentalities, officers, employees, and agents assume no 
+responsibility (1) for the use of the software and documentation contained in 
+this package, or (2) to provide technical support to users.
 
 USE OF GOVERNMENT DATA, PRODUCTS, AND SOFTWARE
 ----------------------------------------------
@@ -79,7 +81,7 @@ to further use these data/products.
 
 This software package may include non-government source code and may reference non-
 government software libraries which are each subject to their own license restrictions. 
-Any non-government code and software library references are listed below.	 If you choose 
+Any non-government code and software library references are listed below. If you choose 
 to use this software package, including references to third-party libraries, for your own 
 purposes, you must abide by their terms of use and license restrictions.
 
@@ -194,7 +196,9 @@ typedef enum ms5607_status
 void makeFileNames(void);
 int Read_POPS_cfg(void);
 void POPS_Output (void);
+void Calc_WidthSTD(void);
 void Write_Files(void);
+void UpdatePumpTime(void);
 void ReadAI(void);
 int Open_Serial(int port, int baud);
 void Close_Serial (int UART);
@@ -214,10 +218,10 @@ MAX5802_status Set_AO(unsigned int n, double Read_V);
 MAX5802_status MAX5802_initialize(void);
 MAX5802_status MAX5802_set_internal_reference( short unsigned int uchReferenceCommand);
 MAX5802_status MAX5802_set_DAC_12_bit_value(short unsigned int uchChannelToSet,
-	unsigned int unRegisterSetting);
+    unsigned int unRegisterSetting);
 MAX5802_status MAX5802_LOAD_DAC_from_CODE_register(short unsigned int uchChannelToSet);
 MAX5802_status MAX5802_set_CODE_register(short unsigned int uchChannelToSet,
-	unsigned int unRegisterSetting);
+    unsigned int unRegisterSetting);
 MAX5802_status MAX5802_set_default_DAC_settings(void);
 MAX5802_status MAX5802_send_sw_clear(void);
 MAX5802_status MAX5802_send_sw_reset(void);
@@ -239,7 +243,6 @@ int Write_UDP(int fd, int i, char msg[]);
 int UDP_Read_Data(int fd, int i);
 void Close_UDP_Socket(int UDPID);
 
-
 //******************************************************************************
 //
 // Global variables:
@@ -251,6 +254,9 @@ char gBBB_SN[20] = {""};                    // BBB Serial Number
 char gPOPS_SN[20] = {""};                   // Instrument serial number
 char gDaughter_Board[20] = {""};            // Daughter board part number
 
+double gPumpLife;                           // Pump Life, hours saved to file
+char gPumpFile[] = "/media/uSD/gPumpFile.txt";  // /media/uSD/gPumpFile
+
 int gStop = 0;                              // Global Stop, 1 = Stop
                                             // PRU1 bit r31.t11 low=Stop
 int gReboot = 0;                            // Global reboot, 1= reboot
@@ -259,24 +265,27 @@ int gIntStatus=1;                           // Status integer. 1=startup, 3=run
 char gStatus_Type[20];                      // iMet, UAV or iMet_ANG
 
 unsigned int gRaw_Data[512];                // Raw data, max of 1024 pts
+unsigned int gRaw_Read[512];                // Raw data read in
 unsigned int gRawBL_Data[512];              // Raw BL Data pts
 
 double gFullSec;                            // Timestamp with partial sec.
 char gTimestamp[16], gDatestamp[9];         // String YYYYMMDDThhmmss
                                             // String YYYYMMDD
+char gDispTime[25];                         // String "dd Mon YYYY hh:mm:ss"
 struct timeval StartTime;                   // Start of 1 sec timer
 int msfd, sfd;                              // File descriptors for ms and s timers
 
 int gSkip_Save;                             // Skip n Between Save in peak files.
 int gn_between = 0;                         // Counter for skip.
+char gMedia[10];                            // Storage media for data, uSD or usb0
 char gBaseAddr[25] = {""};                  // Base path for data files.
-char gPOPS_BBB_cfg[30] = {""};              // POPS BBB configuration file
+char gPOPS_BBB_cfg[20] = {""};              // POPS BBB configuration file
 char gHK_File[50] = {""};                   // Path for Housekeeping File.
 char gPeakFile[50] = {""};                  // Path for Peak File.
+char gPeakFShort[25]={""};                  // Short peak file name for display
 char gLogFile[50] = {""};                   // Path for Log File.
 char gMessage[1000] = {""};                 // Message strings.
 char gRawFile[50] = {""};                   // Raw data file. First n pts/sec
-char gRawBLFile[50] = {""};                 // Raw Baseline data. Latest n pts.
 								
 int gHist[200] = {0};                       // Histogram of particle sizes
 unsigned int gPart_Num=0;                   // Particles per second
@@ -290,6 +299,8 @@ short unsigned int gBaseline;               // Baseline
 short unsigned int gBL_Start;               // Starting value of the Baseline
 double gSTD;                                // STD of Baseline
 double gTH_Mult;                            // Threshold multiplier * STD
+double gWidthSTD;                           // STD of peak width
+double gAW;                                 // Average Width of peaks
 
 int UART1, UART2;                           // Serial port references
 unsigned char gCMD[512] = {""};             // Serial data revieved - UART1 (0-9)
@@ -297,7 +308,7 @@ char gStatus[4094] = {""};                  // Status to send.
 char gFull[4094] = {""};                    // Full data to send
 char gHK[4094] = {""};                      // Housekeeping data to save
 char gRaw_Out[4094] = {""};                 // Raw Data out and save
-char gRaw_BLOut[4094] = {""};               // Raw Baseline Data out and save
+char gAC[1024] = {""};                      // Aircraft Data
 
 static void *pru1DRAM;                      // pointer for baseline data RAM
                                             // memory buffer
@@ -374,30 +385,28 @@ struct gBins {                              // structure for the bins
 
 struct Peaks {                              // structure for peak data
     unsigned int max;
-    unsigned int pos;
     unsigned int w;
-    unsigned int satd;
+    unsigned int dt;
 };
 struct gData {
     struct Peaks peak[30000];
 } gData;                                    // global data structure
 unsigned int gArray_Size = 0;               // Size of the data array
 
-int UDP0S, UDP0R, UDP1S, UDP1R;             // UDP references
+int UDPStat, UDP0R, UDP1S, UDP1R, UDP2S, UDP2R, UDPAC; // UDP references
 
 struct UDP {
     char IP[16];                            // IP address to connect to
     unsigned int port;                      // connection port
-    char type[2];                           // S = Status, F = Full
+    char type[2];                           // S = Status, F = Full, A = Aircraft
     bool use;                               // use this connection?
     struct sockaddr_in myaddr;              // address info
     struct sockaddr_in remaddr;             // address info
 } UDP;
 
 struct gUDP {
-    struct UDP udp[4];
+    struct UDP udp[6];
 } gUDP;
-
 
 //******************************************************************************
 //
@@ -405,7 +414,7 @@ struct gUDP {
 //
 //******************************************************************************
 
-void main(int argc, char *argv[])
+void main()
 {
 
     int i, j, ret, SerialTest, lp, first_call, UDPRec, UDPSend, ieq, eqct;
@@ -430,8 +439,13 @@ void main(int argc, char *argv[])
 //******************************
 // Read the configuration file
 //******************************
-    strcat(gPOPS_BBB_cfg, argv[1]);
+
     Read_POPS_cfg();
+
+//******************************
+//If the Status Type is Manta, set flow to 3.0 cc/s
+//******************************
+    if(strcmp(gStatus_Type, "Manta")==0) gAI_Data.ai[0].value = 3.0;
 
 //******************************
 // Initialize the time and Files
@@ -443,7 +457,32 @@ void main(int argc, char *argv[])
 
     strcat(gMessage,gTimestamp);
     strcat(gMessage,"\tStarted program.\n");
-
+    
+//******************************
+// Git initail Pump Time
+//******************************
+    FILE *fp;
+    int num;
+    char pl[20];
+    if((fp =fopen(gPumpFile,"r" ))==NULL)
+    {
+        gPumpLife = 0.0;
+        fp= fopen(gPumpFile, "w+");
+    }
+    else
+    {
+         num = fscanf(fp,"%s", pl);
+         gPumpLife = atof(pl);
+    }
+    fclose(fp);    
+//******************************
+//Initialize the aircraft data if used
+//******************************
+    if(gUDP.udp[3].use) 
+    {
+        strcpy(gAC,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+    }
+    
  //*****************************
  // Initialize the AO - MAX5802
  //*****************************
@@ -494,11 +533,13 @@ void main(int argc, char *argv[])
 // Open udp Ports
 //*****************************
 
-    if(gUDP.udp[1].use) UDP1S = Open_Socket_Write(1);
-    if(gUDP.udp[0].use) UDP0S = Open_Socket_Broadcast(0);
-    if(gUDP.udp[1].use) UDP1R = Open_Socket_Read(1);
-    if(gUDP.udp[0].use) UDP0R = Open_Socket_Read(0);
-
+    if(gUDP.udp[0].use) UDPStat = Open_Socket_Broadcast(0);         //Status out
+    if(gUDP.udp[0].use) UDP0R = Open_Socket_Read(0);                //Status In
+    if(gUDP.udp[1].use) UDP1S = Open_Socket_Write(1);               //Full Ir
+    if(gUDP.udp[1].use) UDP1R = Open_Socket_Read(1);                //Full Ir
+    if(gUDP.udp[2].use) UDP2S = Open_Socket_Write(2);               //Full Ku
+    if(gUDP.udp[2].use) UDP2R = Open_Socket_Read(2);                //Full Ku
+    if(gUDP.udp[3].use) UDPAC = Open_Socket_Read(3);                //GH AC in
     if(gUDP.udp[0].use || gUDP.udp[1].use) strcat(gMessage, "\tUDP sockets opened.\n");
 
 //*****************************
@@ -611,6 +652,7 @@ void main(int argc, char *argv[])
             if (!strcmp(gStatus_Type, "WB57")) CompressBins();
             Read_RawData();
             POPS_Output();
+            Calc_WidthSTD();
             Write_Files();
         }
         
@@ -621,7 +663,18 @@ void main(int argc, char *argv[])
         Calc_Baseline();
         Check_Stop();
         if(gStop) goto Shutdown;
+        
+// Update the Pump Timer********************************************************
+        UpdatePumpTime();
+        
+        Read_PRU_Data();
+        first_call = 0;
+        getTimes();
 
+        Calc_Baseline();
+        Check_Stop();
+        if(gStop) goto Shutdown;
+        
 // Analog IN *******************************************************************
         ReadAI();
 
@@ -723,8 +776,8 @@ void main(int argc, char *argv[])
 
         if(gUDP.udp[0].use) 
         {
-            UDPSend = Write_UDP(UDP0S, 0, gStatus);
-            UDPRec =	UDP_Read_Data(UDP0R, 0);
+            UDPSend = Write_UDP(UDPStat, 0, gStatus);
+            UDPRec = UDP_Read_Data(UDP0R, 0);
             if(strlen(gCMD) > 0) Implement_CMD(1);
         }
 
@@ -740,10 +793,27 @@ void main(int argc, char *argv[])
             usleep(10);
             UDPSend = Write_UDP(UDP1S, 1, gRaw_Out);
             usleep(10);
-            UDPRec =	UDP_Read_Data(UDP1R, 1);
+            UDPRec = UDP_Read_Data(UDP1R, 1);
             if(strlen(gCMD) > 0) Implement_CMD(2);
         }
-
+        if(gUDP.udp[2].use)
+        {
+            UDPSend = Write_UDP(UDP2S, 2, gFull);
+            usleep(10);
+            UDPSend = Write_UDP(UDP2S, 2, gRaw_Out);
+            usleep(10);
+            UDPRec = UDP_Read_Data(UDP2R, 2);
+            if(strlen(gCMD) > 0) Implement_CMD(2);
+        }
+        if(gUDP.udp[3].use)
+        {
+            UDPRec = UDP_Read_Data(UDPAC, 3);
+            if(UDPRec > 0)
+            {
+                strncpy(gAC,gCMD+5,strlen(gCMD)+5); 
+                strcpy(gCMD,"");
+            }
+        }
 //******************************************************************************
         usleep(10);
         Read_PRU_Data();
@@ -761,6 +831,7 @@ void main(int argc, char *argv[])
             Calc_Baseline();
             Check_Stop();
             if(gStop) goto Shutdown;
+            Read_RawData();
             j+=1;
             iolib_delay_ms(1);
             gettimeofday(&TimeNow, NULL);
@@ -785,8 +856,8 @@ Shutdown:
 
     gAO_Data.ao[0].set_V = 0.0;
     gAO_Data.ao[1].set_V = 0.0;
-    Set_AO(0,0.0);		//Set AO0 to 0.0
-    Set_AO(1,0.0);		//Set AO1 to 0.0
+    Set_AO(0,0.0);      //Set AO0 to 0.0
+    Set_AO(1,0.0);      //Set AO1 to 0.0
 
     pin_low(8,13);
     iolib_free();       //Clear GPIO
@@ -794,10 +865,12 @@ Shutdown:
     Close_Serial(UART1);
     Close_Serial(UART2);
 
-    Close_UDP_Socket(UDP0S);
+    Close_UDP_Socket(UDPStat);
     Close_UDP_Socket(UDP1S);
-    Close_UDP_Socket(UDP0R);
     Close_UDP_Socket(UDP1R);
+    Close_UDP_Socket(UDP2S);
+    Close_UDP_Socket(UDP2R);
+    Close_UDP_Socket(UDPAC);
 	
     close(WD_Timer);
 
@@ -841,6 +914,10 @@ void getTimes(void)
     sprintf(gTimestamp, "%04d%02d%02dT%02d%02d%02d", (gmtNow->tm_year+1900), \
     (gmtNow->tm_mon+1), (gmtNow->tm_mday),(gmtNow->tm_hour),(gmtNow->tm_min), \
     (gmtNow->tm_sec));
+    
+    sprintf(gDispTime, "%04d-%02d-%02d %02d:%02d:%02d   ", (gmtNow->tm_year+1900), \
+    (gmtNow->tm_mon+1), (gmtNow->tm_mday),(gmtNow->tm_hour),(gmtNow->tm_min), \
+    (gmtNow->tm_sec));
 
     gettimeofday(&tval, NULL);
     gFullSec = ((double) tval.tv_sec) + ((double) tval.tv_usec)/1000000.0;
@@ -868,22 +945,25 @@ int Read_POPS_cfg()
     config_init(&cfg);
 
 //	  Read the file. If there is an error, log it and goto Default.
-    if(! config_read_file(&cfg, gPOPS_BBB_cfg))
+    if(! config_read_file(&cfg, "/media/uSD/POPS_BBB.cfg"))
     {
-        strcat(gMessage,"Error opening the POPS_BBB.cfg file.\n");
+        strcat(gMessage,"Error opening the POPS_BBB_AC.cfg file.\n");
         goto Defaults;
 // We actually want to continue and use default values rather than fail.
     }
 
-//Get the Base Address
-    if(config_lookup_string(&cfg, "gBaseAddr", &str))
+    strcpy(gBaseAddr,"/media/");
+//Get the Storage Media
+    if(config_lookup_string(&cfg, "gMedia", &str))
     {
-        strcpy(gBaseAddr, str);
+        strcpy(gMedia, str);
+        strcat(gBaseAddr, str);
     }
     else
     {
-        strcat(gMessage, "No 'address' setting in configuration file.\n");
-        strcpy(gBaseAddr,"/media/uSD/Data/F");
+        strcat(gMessage, "No 'Media' setting in configuration file.\n");
+        strcpy(gMedia,"uSD");
+        strcpy(gBaseAddr,"/media/uSD");
     }
 
 //Get the BBB Serial Number/Name
@@ -1249,7 +1329,8 @@ int Read_POPS_cfg()
 
 Defaults:
     strcat(gMessage, "No 'address' setting in configuration file.\n");
-    strcpy(gBaseAddr,"/media/uSD/Data/F");
+    strcpy(gMedia,"uSD");
+    strcpy(gBaseAddr,"/media/uSD/");
     strcat(gMessage, "No 'POPS serial number' setting in configuration file.\n");
     strcpy(gPOPS_SN, "POPS#");
     strcat(gMessage, "No 'Daughter Board Number' setting in configuration file.\n");
@@ -1257,7 +1338,7 @@ Defaults:
     strcat(gMessage, "No 'Daughter Board Number' setting in configuration file.\n");
     strcpy(gDaughter_Board, "Rev2");
     strcat(gMessage,"No 'Code Version' setting in configuration file.\n");
-    strcpy(gCode_Version, "CodeVer_1.0");
+    strcpy(gCode_Version, "CodeVer_3.0");
     gFlow_Offset = 0;
     gFlow_Divisor = 1;
     strcat(gMessage,"Using default flow offset and divisor.\n");
@@ -1319,15 +1400,20 @@ void makeFileNames(void)
     char blk[] = {""};                      // blank string for initialization
     char HK_Header[2000] ={""};             // HK header, comma del
     char ch;                                // for file copy
-    char cp_cmd[] = {""};                   // copy command for configuration file
-    
-    sprintf(FileAddr,"%sData/F", gBaseAddr);
+    char binNames[1000] = {""};             // Histogram Bin names (max = 883)
+    char str[] = {""};                      // string dummy
+
+    char config[] ="/media/uSD/POPS_BBB.cfg";
+    char cp_cmd[] = {""};
+
+
+    strcat(FileAddr, gBaseAddr);
+    strcat(FileAddr, "/Data/F");
     strcat(FileAddr, gDatestamp);
     mkdir(FileAddr,0666);
 
 // Save the configuration file to today's directory.
-    sprintf(cp_cmd, "cp %s", gPOPS_BBB_cfg);
-    strcat(cp_cmd," ");
+    strcat(cp_cmd,"cp /media/uSD/POPS_BBB.cfg ");
     strcat(cp_cmd, FileAddr);
     system (cp_cmd);
 
@@ -1336,7 +1422,7 @@ void makeFileNames(void)
     strcpy(gLogFile, blk);
     strcpy(gPOPS_BBB_cfg, blk);
     strcpy(gRawFile, blk);
-    strcpy(gRawBLFile, blk);
+    strcpy(gPeakFShort, blk);
 
     strcat(FileAddr, "/");
     strcat(FileVersion, FileAddr);
@@ -1367,9 +1453,17 @@ void makeFileNames(void)
     strcat(gHK_File, gDatestamp);
     strcat(gHK_File, ver);
     strcat(gHK_File, ".csv");
+    
+    strcpy(binNames,blk);
+    for (i=0;i<gBins.nbins;i++)
+    {
+        strcat(binNames,",b");
+        sprintf(str,"%d",i);
+        strcat(binNames,str);
+    }
 
     fp = fopen(gHK_File, "w");
-    strcpy(HK_Header,"DateTime, Status, PartCt, PartCon, BL, BLTH, STD, P, TofP");
+    strcpy(HK_Header,"DateTime,Status,PartCt,PartCon,BL,BLTH,STD,P,TofP,PumpLife_hrs,WidthSTD,AveWidth");
     for (i=0; i<7; i++)
     {
         strcat(HK_Header, ", ");
@@ -1380,14 +1474,27 @@ void makeFileNames(void)
         strcat(HK_Header, ", ");
         strcat(HK_Header, gAO_Data.ao[i].name);
     }
-    strcat(HK_Header,",BL_Start, TH_Mult, nbins, logmin, logmax, Skip_Save,");
-    strcat(HK_Header," MinPeakPts,MaxPeakPts, RawPts, [HISTOGRAM]\r\n");
+    strcat(HK_Header,",BL_Start,TH_Mult,nbins,logmin,logmax,Skip_Save,");
+    strcat(HK_Header,"MinPeakPts,MaxPeakPts,RawPts,");
+    if(gUDP.udp[3].use)     // add the aircraft header if data is used
+    {
+    strcat(HK_Header,"ACDateTime,Lat,Lon,GPS_MSL_Alt,WGS_84_Alt,Press_Alt,Radar_Alt,");
+    strcat(HK_Header,"Grnd_Spd,True_Airspd,Ind_Airspd,Mach,Vert_Vel,True_Hdg,Track,Drift,Pitch,");
+    strcat(HK_Header,"Roll,SideSlip,AngleOfAttack,Ambient_T,DewPoint,Total_T,");
+    strcat(HK_Header,"Static_P,Dynamic_P,Cabin_P,WindSpd,WindDir,VertWindSpd,");
+    strcat(HK_Header,"SolarZenith,SunElevAC,SunAzGrnd,SunAz_AC");
+    }
+    strcat(HK_Header,binNames);
+    strcat(HK_Header,"\r\n");
     fprintf( fp, HK_Header);
 
     fclose (fp);
 
     strcat(gPeakFile, FileAddr);
     strcat(gPeakFile, "Peak_");
+    strcat(gPeakFShort,"Peak_");
+    strcat(gPeakFile, gDatestamp);
+    strcat(gPeakFShort, gDatestamp);
     strcat(gPeakFile, gDatestamp);
     strcat(gPeakFile, ver);
     strcat(gPeakFile, ".b");
@@ -1404,12 +1511,27 @@ void makeFileNames(void)
     strcat(gRawFile, ver);
     strcat(gRawFile, ".b");
 
-    strcat(gRawBLFile, FileAddr);
-    strcat(gRawBLFile, "RawBL_");
-    strcat(gRawBLFile, gDatestamp);
-    strcat(gRawBLFile, ver);
-    strcat(gRawBLFile, ".b");
+}
 
+//******************************************************************************
+//
+//  UpdatePumpTime
+//
+//  Increment the pump time and save as hours.
+//
+//******************************************************************************
+
+void UpdatePumpTime (void)
+{
+    FILE *fp;
+    int num;
+    fp =fopen(gPumpFile,"r+" );
+
+    gPumpLife+= 0.000277778;          //increment the pump life
+    
+    fseek(fp,0,SEEK_SET);
+    fprintf(fp,"%4.8f\r\n",gPumpLife);
+    fclose(fp);
 }
 
 //******************************************************************************
@@ -1424,19 +1546,23 @@ void ReadAI( void )
 {
     FILE *aifile0,*aifile1,*aifile2,*aifile3,*aifile4,*aifile5,*aifile6;
     static int ain[7];
-    int i;
+    int i, start;
     double A, B, C, D, int1, int2, int3;
 	
     A = 1.13206975726444E-03;
     B = 2.33431080526447E-04;
     C = 9.43470416157594E-08;
     D = -2.63722384777803E-11;
-
+    
+    if (strcmp(gStatus_Type, "Manta")!=0)  // Don't update POPS Flow if Manta
+    {
     aifile0 = fopen( "/sys/devices/ocp.3/helper.12/AIN0","r");
     fseek(aifile0,0,SEEK_SET);
     fscanf(aifile0,"%d",&ain[0]);
     fclose(aifile0);
-
+    start = 0;
+    }
+    else start = 1;
 
     aifile1 = fopen("/sys/devices/ocp.3/helper.12/AIN1", "r");
     fseek(aifile1,0,SEEK_SET);
@@ -1469,7 +1595,7 @@ void ReadAI( void )
     fclose(aifile6);
 
 
-    for (i = 0; i < 7; i++)
+    for (i = start; i < 7; i++)
     {
         if (ain[i]>=1780) pin_high(8,14);
         switch(gAI_Data.ai[i].conv)
@@ -1525,6 +1651,7 @@ void POPS_Output (void)
     char full[] = {""};
     char str[4094] = {""};
     char fullstr[4094]={""};
+    char *pch;
     unsigned int i, Bins, temp_out;
     int nantest;
 
@@ -1555,19 +1682,23 @@ void POPS_Output (void)
 	
     sprintf(str,",%.2f,%.2f", P, T);        //P and T
     strcat(fullstr,str);
+    
+    sprintf(str, ",%.2f,%.2f,%.2f",gPumpLife, gWidthSTD, gAW);     //Pump and widthSTD
+    strcat(fullstr, str);
 	
     for (i=0; i<7; i++)                     //AI
     {
         sprintf(str,",%.2f" ,gAI_Data.ai[i].value);
         strcat(fullstr,str);
     }
-
+    
     for (i=0; i<2; i++)                     //AO
     {
         sprintf(str,",%.2f", gAO_Data.ao[i].set_V);
         strcat(fullstr,str);
     }
-
+    
+    // control values
     sprintf(str, ",%u,%.1f,%u,%.2f,%.2f",gBL_Start,gTH_Mult,gBins.nbins,
         gBins.logmin,gBins.logmax);
     strcat(fullstr, str);
@@ -1575,35 +1706,38 @@ void POPS_Output (void)
     sprintf(str, ",%i,%u,%u,%i",gSkip_Save,gMinPeakPts,gMaxPeakPts,gRaw.pts);
     strcat(fullstr, str);
 
+    strcat(gFull,fullstr);
+    strcat(gHK, fullstr);
+    strcat(gHK, ",");
+    
+    if (gAC[0]!='\0')  // append aircraft data without \n if available
+    {
+        pch = strtok(gAC,"\n");
+        strcat(gHK,pch);
+        strcat(gHK,",");
+    }
+    
     for (i=0; i<gBins.nbins; i++)           //Histogram
     {	
         sprintf(str, ",%d", gHist[i]);
-        strcat(fullstr, str);
+        strcat(gFull, str);
+        strcat(gHK, str);
     }
     sprintf(str,"\r\n");
-    strcat(fullstr, str);                   // add cr lf
-
-    strcat(gFull, fullstr);
-    strcat(gHK, fullstr);                   //Set HK data
-
-
+  
+    strcat(gFull, str);                     // add cr lf
+    strcat(gHK, str);                     
+    
 // Raw Data
     if(gRaw.save | gRaw.view)
     {
         strcpy(gRaw_Out,"RawData" );        //Headers
-        strcpy(gRaw_BLOut,"RawBL");
 
         for(i=0; i<gRaw.pts; i++)
         {
             sprintf(str,",%x",gRaw_Data[i]);
             strcat(gRaw_Out,str);
         }
-
-        // for(i=0; i<gRaw.blpts; i++)
-        // {
-        //	sprintf(str,",%x",gRawBL_Data[i]);
-        //	strcat(gRaw_BLOut,str);
-        // }
     }
 	
 // Status Packet
@@ -1660,7 +1794,7 @@ void POPS_Output (void)
             strcat(gStatus, str);
     }
 		
-    else if(strcmp(gStatus_Type, "iMet_ANG")==0)
+    else if(!strcmp(gStatus_Type, "iMet_ANG"))
     {
         strcpy(gStatus,"xdata=3801");
         sprintf(str, "%04X", gPart_Num);                //Particle Number
@@ -1703,7 +1837,7 @@ void POPS_Output (void)
         strcat(gStatus, str);
     }	
 		
-    else if (strcmp(gStatus_Type, "UAV") ==0)
+    else if (!strcmp(gStatus_Type, "UAV"))
     {
         strcpy(gStatus, inst );		
         strcat(gStatus, gTimestamp);
@@ -1721,6 +1855,26 @@ void POPS_Output (void)
         strcat(gStatus,str);
         sprintf(str,",%.2f",gAI_Data.ai[5].value);          //AI Temp
         strcat(gStatus,str);
+        // for (i=0; i<Bins; i++)                              //Histogram
+        // {	
+        //     sprintf(str, ",%d", gHist[i]);
+        //     strcat(gStatus, str);
+        // }
+        sprintf(str,"\r\n");                                //add cr lf
+        strcat(gStatus, str);
+    }	
+	    else if (!strcmp(gStatus_Type, "Manta"))
+    {
+        strcpy(gStatus, inst );		
+        strcat(gStatus, gTimestamp);
+        sprintf(str,",%u,%u,%.2f",gIntStatus,gPart_Num,gPartCon_num_cc);  //Status
+        strcat(gStatus, str);
+        sprintf(str,",%.2f",gAI_Data.ai[0].value);          //POPS Flow (from Manta)
+        strcat(gStatus,str);
+        sprintf(str, ",%u,%.2f",gBaseline,gSTD);            //Baseline info
+        strcat(gStatus, str);
+
+        
         for (i=0; i<Bins; i++)                              //Histogram
         {	
             sprintf(str, ",%d", gHist[i]);
@@ -1728,15 +1882,48 @@ void POPS_Output (void)
         }
         sprintf(str,"\r\n");                                //add cr lf
         strcat(gStatus, str);
-    }	
-		
-    else if (strcmp(gStatus_Type, "WB57") ==0)
+    }		
+    else if (!strcmp(gStatus_Type, "WB57"))
     {
         strcpy(gStatus, inst );		
         //strcat(gStatus, gTimestamp); //optional timestamp
         sprintf(str,"%.2f",gPartCon_num_cc);                //Status
         strcat(gStatus, str);
 
+        for (i=0; i<Bins; i++)                              //Histogram
+        {	
+            sprintf(str, ",%d", gHist[i]);
+            strcat(gStatus, str);
+        }
+        sprintf(str,"\r\n");                                //add cr lf
+        strcat(gStatus, str);
+    }
+    
+    else if (!strcmp(gStatus_Type, "Display"))
+    {
+        strcpy(gStatus, gDispTime);                         //Time
+        strcat(gStatus, gPeakFShort);                       //File (name only)
+        sprintf(str,"  %.2f Pump hrs",gPumpLife);                    //PumpLife
+        strcat(gStatus,str); 
+        sprintf(str,",%.2f",gPartCon_num_cc);               //PartCon
+        strcat(gStatus, str);
+        sprintf(str,",%.2f",gAI_Data.ai[0].value);          //AI Flow
+        strcat(gStatus,str);
+        sprintf(str,",%.2f", P);                            //P 
+        strcat(gStatus,str);
+        sprintf(str,",%.2f",gAI_Data.ai[5].value);          //AI Temp
+        strcat(gStatus,str);
+        sprintf(str,",%d",gSkip_Save);                       //SkipSave
+        strcat(gStatus,str);
+        sprintf(str,",%d",gBins.nbins);                     //Bin info
+        strcat(gStatus,str);
+        sprintf(str,",%.3f",gBins.logmin);
+        strcat(gStatus,str);                
+        sprintf(str,",%.3f",gBins.logmax);
+        strcat(gStatus,str);   
+        sprintf(str,",%.2f",gPumpLife);
+        strcat(gStatus,str); 
+        
         for (i=0; i<Bins; i++)                              //Histogram
         {	
             sprintf(str, ",%d", gHist[i]);
@@ -1905,8 +2092,8 @@ int Send_Serial(int UART, char msg[])
 {
     int count, len;
 
-    if ((count = write(UART, msg, (strlen(msg))))<0)	//send the string without
-								                        //null termination
+    if ((count = write(UART, msg, (strlen(msg))))<0)    //send the string without
+                                                        //null termination
     {
         strcat(gMessage,"Failed to write to the output - UART\n");
         return -1;
@@ -1962,7 +2149,7 @@ void Calc_Baseline( void )
     {
         gRawBL_Data[2*i] = (double)((pru1DRAM_int[i] & 0xFFFF0000) >> 16);
         gRawBL_Data[2*i+1] = (double)(pru1DRAM_int[i] & 0x0000FFFF);
-        bl = bl +	 (gRawBL_Data[2*i] + gRawBL_Data[2*i+1]);
+        bl = bl + (gRawBL_Data[2*i] + gRawBL_Data[2*i+1]);
     }
 
     bl = bl/512.0;
@@ -1980,6 +2167,7 @@ void Calc_Baseline( void )
     pru1DRAM_int[257] = gBaseline;
 }
 
+
 //******************************************************************************
 //
 //  Read_RawData
@@ -1992,14 +2180,32 @@ void Calc_Baseline( void )
 void Read_RawData( void )
 {
     int i;                                  // Step for address
-
+    int count = 0;                          // Peak counter
+    int flag = 0;                           // peak found flag
+    
 /* Read PRU0 RAM memory. */
 
     for (i=0; i<256; i++)                   // Read 0..255
     {
-        gRaw_Data[2*i+1] = (double)((pru0DRAM_int[i] & 0xFFFF0000) >> 16);
-        gRaw_Data[2*i] = (double)(pru0DRAM_int[i] & 0x0000FFFF);
+        gRaw_Read[2*i+1] = (double)((pru0DRAM_int[i] & 0xFFFF0000) >> 16);
+        gRaw_Read[2*i] = (double)(pru0DRAM_int[i] & 0x0000FFFF);
     }
+    for(i=0; i<512; i++)
+    {
+        if (gRaw_Read[i] > gBLTH)
+        {
+            count +=1;
+            if(count > 10) flag = 1;
+        }    
+        else count = 0;
+    }
+    if (flag > 0)
+    {
+        for(i=0; i<512; i++)
+        {
+            gRaw_Data[i] = gRaw_Read[i];
+        }
+    } 
 }
 
 
@@ -2039,7 +2245,7 @@ void CalcBins(void)
 //
 //  CompressBins
 //
-//  Compress 16 BINS to 8.  Used on some ballone or aircraft Status outputs.
+//  Compress 16 BINS to 8.  Used on some balloon or aircraft Status outputs.
 //
 //  gHist 0..5 are 16 bin data
 //  gHist 6 is 6+7+8+9
@@ -2052,6 +2258,33 @@ void CompressBins(void)
     gHist[6] = gHist[6] + gHist[7] + gHist[8] + gHist[9];
     gHist[7] = gHist[10] + gHist[11] + gHist[12] + gHist[13] + gHist[14] + gHist[15];
 
+    return;
+}
+
+//******************************************************************************
+//
+//  Calc_WidthSTD
+//
+//  Calculate the standard deviation of the width of the particles.
+//
+//******************************************************************************
+void Calc_WidthSTD(void)
+{
+    double var;
+    int i;
+    
+    for ( i =0; i< gArray_Size; i++)
+    {
+        gAW += gData.peak[i].w;
+    }
+    gAW =gAW/gArray_Size;
+    
+    for (i = 0; i < gArray_Size; i++)
+    {
+        var += (gData.peak[i].w-gAW)*(gData.peak[i].w-gAW);
+    }
+    gWidthSTD = sqrt(var/(gArray_Size-1));
+    
     return;
 }
 
@@ -2119,7 +2352,7 @@ void Write_Files(void)
         size_time = sizeof(double);
         size_array = sizeof(unsigned int);
 
-        gdatasize = (gArray_Size)*(4*sizeof(unsigned int));
+        gdatasize = (gArray_Size)*(3*sizeof(unsigned int));
 
         fwrite(&gArray_Size, size_array,1,fpb);
         fwrite(&gFullSec,size_time,1,fpb);
@@ -2138,13 +2371,6 @@ void Write_Files(void)
             fwrite(&gRaw_Data, gRaw.pts*sizeof(unsigned int),1,fpr);
         }
         fclose (fpr);
-        fpr = fopen(gRawBLFile, "a+");
-        if (fpr == NULL) strcat(gMessage,"Raw Data file could not be opened.\n");
-        else
-        {
-            fwrite(&gRawBL_Data, gRaw.blpts*sizeof(unsigned int),1,fpr);
-        }
-        fclose (fpr);
     }
 
     gPart_Num = gArray_Size;                // Pass the value for in-lineing
@@ -2152,6 +2378,7 @@ void Write_Files(void)
     gRaw.ct = 0;
 
 }
+
 
 //******************************************************************************
 //
@@ -2181,9 +2408,25 @@ void Implement_CMD(int source)
         if (!strncmp(gCMD, "7", 1)) ;                   //Available
         if (!strncmp(gCMD, "8", 1)) gStop = true;       //Shutdown
         if (!strncmp(gCMD, "9", 1)) gReboot = true;     //Reboot
+        if (!strncmp(gCMD, "LFE_",4))
+        {
+            pch = strtok(gCMD,"_");
+            strcpy(CMD,pch);
+            pch = strtok(NULL,"_");
+            value = atof(pch);
+            gAI_Data.ai[0].value=value/60.0;
+        }
         memset(&gCMD[0],0,sizeof(gCMD));                //Clear the command
     }
     if(source == 2)
+         if (!strncmp(gCMD, "LFE_",4))    // Set the POPS Flow from the Manta
+        {
+            pch = strtok(gCMD,"_");
+            strcpy(CMD,pch);
+            pch = strtok(NULL,"_");
+            value = atof(pch);
+            gAI_Data.ai[0].value=value/60.0;
+        }
     {
         pch = strtok(gCMD,"=");
         strcpy(CMD,pch);
@@ -2240,7 +2483,12 @@ void Check_Stop( void)
 {
 //	Check the stop bit on PRU1 (r31.b11)
 
-    if (pru1DRAM_int[259] > 0) gStop = 1;
+    if (pru1DRAM_int[259] > 0) 
+   {
+      usleep(1);
+     if(pru1DRAM_int[259] > 0) gStop = 1;
+     else gStop = 0;
+    }
 
 }
 
@@ -3142,7 +3390,7 @@ void InitPRU_Mem(void)
 
 //******************************************************************************
 //
-// Read PRU Peak Data
+// Read PRU Peak Data dt version
 //
 // Read the current m_tail of the Shared Memory buffer m_head is the next 
 // buffer point to read and is carried over from the last read.
@@ -3154,11 +3402,17 @@ void InitPRU_Mem(void)
 // is invalid, the particles would be overlapping.
 //
 //******************************************************************************
-
 void Read_PRU_Data (void)
 {
     unsigned int i, j, jmax, m, mmax = 3072, n;
     unsigned int y_all[3072];
+
+// Read the current m_tail of the Shared Memory buffer
+// m_head is the next buffer point to read and is
+// carried over from the last read.
+// The base address is 0x00010000 and needs to be subtracted.
+// 4 bytes read at a time. Do not read the point at M_tail, it may have only
+// 2 bytes of data. Read it next time.
 
     m = pru1DRAM_int[258];
 
@@ -3166,39 +3420,42 @@ void Read_PRU_Data (void)
 
 // y_all is the new y data, 16 bytes at a time
 
-    if (m_head == m_tail) return;               // no new data
 
-    if (m_tail > m_head)                        // read buffer continuous
+    if (m_head == m_tail) return;                          // no new data
+
+    if (m_tail > m_head)                                   // read buffer continuous
     {
         i_tail = m_tail - m_head;
-        for(i = m_head; i < m_tail; i++)        // m_head..m_tail-1
+        for(i = m_head; i < m_tail; i++)                   // m_head..m_tail-1
         {
             y_all[i-m_head] = pruSharedMem_int[i];
         }
     }
-    else                                        // to end of buffer and start of next
+    else                                                   // to end of buffer and start of next
     {
-        i_tail = mmax - m_head + m_tail - 1;    // the -1 is because the buffer
-                                                // is 0..3071
-        for (i = m_head; i < mmax; i++)         // m_head..3071
+        i_tail = mmax - m_head + m_tail - 1;               // the -1 is because the buffer
+                                                           // is 0..3071
+        for (i = m_head; i < mmax; i++)                    // m_head..3071
         {
             y_all[i-m_head] = pruSharedMem_int[i];
         }
 
-        for (i = 0; i < m_tail; i++)            // 0..m_tail-1
+        for (i = 0; i < m_tail; i++)                       // 0..m_tail-1
         {
             y_all[i+mmax-m_head] = pruSharedMem_int[i];
         }
     }
-    m_head=m_tail;                              // Start of next time through
+    m_head=m_tail;                                         // Start of next time through
     for (j=0; j< i_tail; j+=2)
     {
         if(gArray_Size < 29999) // ignore any data over 30,000 particles in one second
         {
-        gData.peak[gArray_Size].pos =(unsigned int) ((y_all[j] &  0xFFFF0000) >>16) ;   //lower 2 bytes
-        gData.peak[gArray_Size].max = (unsigned int) (y_all[j] &  0x0000FFFF) ;         //top 2 bytes
-        gData.peak[gArray_Size].w =(unsigned int) ((y_all[j+1] &  0xFFFF0000) >>16) ;   //lower 2 bytes
-        gData.peak[gArray_Size].satd = (unsigned int) (y_all[j+1] &  0x0000FFFF) ;      //top 2 bytes
+        gData.peak[gArray_Size].w =(unsigned int) ((y_all[j] &  0xFFFF0000) >>16) ;	    
+        //lower 2 bytes
+        gData.peak[gArray_Size].max = (unsigned int) (y_all[j] &  0x0000FFFF) ;			
+        //top 2 bytes
+        gData.peak[gArray_Size].dt =(unsigned int) (((double)(y_all[j+1] + 16))/200.) ;		
+        //4 bytes to dt in uS. 16 added to make up for lost cycles. Divide by 200 MHz.
         gArray_Size+=1;
         }
     }
@@ -3374,7 +3631,7 @@ int Open_Socket_Read(int i)
 
 //******************************************************************************
 //
-//  Read_UDP_Data
+//  UDP_Read_Data
 //
 //  Read data from a UDP socket
 //
@@ -3416,3 +3673,4 @@ void Close_UDP_Socket(int UDPID)
 {
     close(UDPID);
 }
+

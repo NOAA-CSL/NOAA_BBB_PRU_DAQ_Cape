@@ -23,8 +23,9 @@ echo max5802w 0x0F > /sys/class/i2c-adapter/i2c-1/new_device
 
 mount /dev/mmcblk0p1 /media/uSD
 
-sleep 20
-cd /var/lib/cloud9/POPS/Software_\&_Example
-/var/lib/cloud9/POPS/popsdt < /media/uSD/POPS_BBB.cfg &
+
+sleep 60
+cd /var/lib/cloud9/POPS
+/var/lib/cloud9/POPS/pops &
 
 exit 0
