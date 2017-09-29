@@ -1,8 +1,9 @@
-// Data_PRU1.p program to read DR (data ready), OU (over/under flow), 
+// PRU1_All_dt.p program to read DR (data ready), OU (over/under flow), 
 // and read the low byte of the data.
 // Does the analysis for peak points. Peak >= 5 points and
 // peak < 255 points
 // Also reads the Power Off bit for shutdown.
+// Enables and reads the cycle count to used to calculate a particle dt.
 // 
 // Name:        Read Register:  Pin used:   Mode:   0 Value 1 Value
 // Bit0         R31.t0          P8.45       6
@@ -18,8 +19,9 @@
 // SPARE        R30.t10         P8.28       6       (PULLED HIGH)     
 // Stop         R31.t11         p8.30       6       STOP     RUN
 //
-//  Data: 16 bit number 0xnnnn 
-//  Point data: Maximum, Position of maximum, width and number of saturated points.
+// Data: 16 bit number 0xnnnn 
+// Point data: Maximum, width and cycle count since last particle.
+//
 // 
 // Memory usage
 //
@@ -27,22 +29,20 @@
 // Point Pointer Address @ 0x0000 0404
 // STOP Address @ 0x0000408
 //
-// Rolling Baseline 1K buffer:
+// Rolling Baseline 1K buffer (2 byte data)
 //  PRU1 DRAM 1K = 0x0400
-//  Start address = 0x0000 0000
-//  End address = 0x0000 03FF
+//  Start address: 0x0000 0000
+//  End address: 0x0000 03FF
 //
-// Rolling Data Buffer
+// Rolling Data Buffer (8 byte data)
 //  Shared RAM 12K = 0x3000
-//  Start address = 0x0001 0000
-//  End Address= 0x0001 2FFF
+//  Start address: 0x0001 0000
+//  End Address: 0x0001 2FF8
 //
-// Raw Data Buffer
-//  PRU0 RAM 1K = 0x0400
-//  Start address = 0x0000 2000
-//  End address = 0x0000 23FE
-//
-
+// Rolling Raw Data Buffer (2 byte data)
+//  RRU0 DRAM 1K = 0x0300
+//  Local Start address: 0x2000
+//  Local End address: 0x23FE
 
 .origin 0                           // Start of program in PRU0 memory.
 .entrypoint START                   // Entrypoint for the debugger.
@@ -53,17 +53,19 @@
 #define PRU1_R31_VEC_VALID 32       // Allows notification of program completion
 #define PRU_EVTOUT_1    4           // The event number that is sent - complete
 #define CONST_PRUCFG C4
-#define SPP 0x34
+#define SPP     0x34
+#define CFG     0x00026000          // CFG base address for enable/disable count
+#define CTRL    0x24000             // PRU1 Control register local address
 
 START: 
     MOV r1, 0x00026034              // Enable the scratch pad with PRU1 priority
     MOV r2, 0x00000003
     SBBO r2, r1, 0, 4
-    
+
     MOV r0, 0x00000000              // This is the register shift and must stay 0
     MOV r1, 0x00000000              // Current Baseline value - r1.w0 = BL, r1.w2 = BLTH
-    MOV r2, 0x00000000              // Current Peak Value -     r2.w0 = MAX, r2.w2 = POS
-    MOV r3, 0x00000000              // Current Peak Value -     r3.w0 = SATD, r3.w2 = CT
+    MOV r2, 0x00000000              // Current Peak Value -     r2.w0 = MAX, r2.w2 = WIDTH
+    MOV r3, 0x00000000              // Current Peak Value -     r3 = Cycle Count
     MOV r4, 0x00000000              // Current Point -          r4.w0 = PT
     MOV r5, 0x00000000              // Control value -          r5.w0 = type, r5.w2 = STOP
                                     // r5.t0 = 0 baseline =1 point
@@ -83,7 +85,12 @@ START:
     MOV r19, 0x00000000             // Stop value 0x0000 run, 0xFFFF Stop
     MOV r20, 0x00000000             // Take data CMD register .t0 take data, .t1 STOP
     MOV r21, 0x00000000             // Data register for high byte from PRU0
-    MOV r22, 0x0000                 // Zero value for output
+    
+ENABLE_CYCT:  
+    MOV r22, CTRL                   // Set to CTRL address
+    LBBO r23, r22, 0, 4             // r23 keeps track of count enable
+    SET r23, 3                      // Enable cycle count
+    SBBO r23, r22, 0, 4             // Send Enable
     
 LOAD_NOSTOP:
     SBBO r19, r11, 0, 2             // Load a zero into the STOP location
@@ -135,36 +142,37 @@ PEAK_PT:
     QBBS CHECK_MAX, r5.t0           // If the last point was a peak, Check Max
     SET r5.t0                       // It is a peak point
     MOV r2.w0, r4.w0                // put peak in max
-    MOV r2.w2, 1                    // Start count
-    MOV r3.w0, 0                    // Start saturated at 0
-    MOV r3.w2, 1                    // Start POS at 1
+    MOV r2.w2, 1                    // Start width count
     JMP READ_BLTH                   // LOOP Again.
     
 CHECK_MAX:
-    ADD r3.w2, r3.w2,1              // Increment the count
+    ADD r2.w2, r2.w2, 1             // Increment the width count
     QBGT SET_MAX, r2.w0, r4.w0      // Other values stay the same if the new 
                                     // is not greater
     JMP READ_BLTH                   // LOOP Again.
     
 SET_MAX:
     MOV r2.w0, r4.w0                // Move the new peak into max
-    MOV r2.w2, r3.w2                // move the count into the position
     JMP READ_BLTH
     
 WRITE_PK: 
     CLR r5.t0                       // end of peak
-    QBGT CLEAR, r3.w2, 5            // not enough points
-    QBLT CLEAR, r3.w2, 255          // too many points
+    QBGT READ_BLTH, r2.w2, 5        // not enough points
+    QBLT READ_BLTH, r2.w2, 255      // too many points
+    LBBO r23, r22, 0, 4             // Get the control register value
+    CLR r23, 3                      // Disable the cycle count
+    SBBO r23, r22, 0, 4             // Send Disable out
+    LBBO r3, r22, 0xc, 4            // Read the cycle count from count register
     SBBO r2, r6, 0, 8               // write out r2 and r3
     ADD r6, r6, 8                   // Increment the pointer
     SBBO r6, r10, 0, 4              // Write the pointer address out 
-    QBLE CLEAR, r15, r6             // Is the PT buffer full?
+    QBLE CLEAR_CYCT, r15, r6        // Is the PT buffer full?
     MOV r6, r14                     // Restart buffer
     
-CLEAR:    
-    MOV r2, 0x00000000              // restart point
-    MOV r3, 0x00000000
-    MOV r4, 0x00000000
+CLEAR_CYCT:
+    SBBO r12, r22, 0xc, 4           // Clear the cycle count
+    SET r23.t3                      // Enable the cycle count
+    SBBO r23, r22, 0, 4             // Send Enable out
     JMP READ_BLTH                   // LOOP Again.
     
 END:
