@@ -1,4 +1,0 @@
-#!/bin/bash
-pasm -V3 -b PRU0_ParData.p
-pasm -V3 -b PRU1_All_dt.p
-gcc POPS_BBB_dt.c -o popsdt -lprussdrv -lrt -lm -lconfig -L. -liofunc
