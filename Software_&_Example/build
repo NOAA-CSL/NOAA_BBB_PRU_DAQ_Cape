@@ -2,4 +2,3 @@
 pasm -V3 -b PRU0_ParData.p
 pasm -V3 -b PRU1_All.p
 gcc POPS_BBB.c -o pops -lprussdrv -lrt -lm -lconfig -L. -liofunc
-
