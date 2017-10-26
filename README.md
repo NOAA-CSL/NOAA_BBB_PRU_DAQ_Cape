@@ -68,7 +68,7 @@ Software and Examples
 
 * PRU0_ParData.p, PRU1_All.p and PRU1_All_dt.p: Assembly language programs for the POPS instrument.
 
-* POPS_BBB.c and POPS_BBB_dt.c:  The main program for the POPS instrument. Demonstrates the capacity of the cape.
+* POPS_BBB.c:  The main program for the POPS instrument. Demonstrates the capacity of the cape.
 
 * POPS_BBB.cfg:  The configuration file for the POPS instrument.
 
