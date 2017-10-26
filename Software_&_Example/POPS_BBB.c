@@ -27,6 +27,7 @@
 //  3.0 Merge various versions of the POPS program to function on balloons, UAV, 
 //  Manta, WB57, etc with writing to either the uSD or usb drive. Config file 
 //  must be on the uSD card.
+//  4.0 Allows different flow rates to be set with a pressure trip.
 */
 /*DISCLAIMER
 ----------------------------------------------
@@ -215,6 +216,7 @@ void Check_Stop(void);
 int MIN (int a, int b);
 int MAX (int a, int b);
 MAX5802_status Set_AO(unsigned int n, double Read_V);
+void CheckFlowStep(void);
 MAX5802_status MAX5802_initialize(void);
 MAX5802_status MAX5802_set_internal_reference( short unsigned int uchReferenceCommand);
 MAX5802_status MAX5802_set_DAC_12_bit_value(short unsigned int uchChannelToSet,
@@ -408,6 +410,18 @@ struct gUDP {
     struct UDP udp[6];
 } gUDP;
 
+bool gFlowStepUse;                          // use plow step at low pressure
+int gFlowSteps;                             // number of flow steps
+double gStartFlowV;                         // starting high pressure flow
+int gFlowFlag = 0;                          // 0 = inital, 1 = 1st pressure etc. 
+struct step {                               // steps are the pressure where low
+    double Press;                           //   flow starts
+    double PumpV;
+} step;
+struct gFlowStep {
+    struct step Step[10];
+}gFlowStep;
+
 //******************************************************************************
 //
 // Main program:
@@ -441,6 +455,7 @@ void main()
 //******************************
 
     Read_POPS_cfg();
+    gStartFlowV = gAO_Data.ao[1].set_V;
 
 //******************************
 //If the Status Type is Manta, set flow to 3.0 cc/s
@@ -480,7 +495,7 @@ void main()
 //******************************
     if(gUDP.udp[3].use) 
     {
-        strcpy(gAC,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+        strcpy(gAC,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
     }
     
  //*****************************
@@ -698,6 +713,15 @@ void main()
         Calc_Baseline();
         Check_Stop();
         if(gStop) goto Shutdown;
+        
+// Flow as fcn of Pressure******************************************************
+        if(gFlowStepUse) CheckFlowStep();
+
+        Read_PRU_Data();
+        Calc_Baseline();
+        Check_Stop();
+        if(gStop) goto Shutdown;
+        
 // UART1 Status ****************************************************************
         if (gSerial_Ports.serial_port[0].use && !gSerial_Ports.serial_port[0].open)
         {
@@ -796,6 +820,7 @@ void main()
             UDPRec = UDP_Read_Data(UDP1R, 1);
             if(strlen(gCMD) > 0) Implement_CMD(2);
         }
+        
         if(gUDP.udp[2].use)
         {
             UDPSend = Write_UDP(UDP2S, 2, gFull);
@@ -805,6 +830,7 @@ void main()
             UDPRec = UDP_Read_Data(UDP2R, 2);
             if(strlen(gCMD) > 0) Implement_CMD(2);
         }
+        
         if(gUDP.udp[3].use)
         {
             UDPRec = UDP_Read_Data(UDPAC, 3);
@@ -814,12 +840,14 @@ void main()
                 strcpy(gCMD,"");
             }
         }
+        
 //******************************************************************************
         usleep(10);
         Read_PRU_Data();
         Calc_Baseline();
         Check_Stop();
         if(gStop) goto Shutdown;
+        
 
 // Loop on Process and Baseline until 1 sec or stop ****************************
         j=0;
@@ -941,6 +969,7 @@ int Read_POPS_cfg()
     config_setting_t *setting;
     const char *str;
     int test, i, count;
+    int usei;
 
     config_init(&cfg);
 
@@ -1127,6 +1156,41 @@ int Read_POPS_cfg()
 // no defaults if they are not set up.
         }
     }
+// Get the Flow Step settings
+    if(config_lookup_bool(&cfg, "Setting.FlowStepUse", &usei))
+    {
+        gFlowStepUse = usei;
+    }
+    else
+    {
+        gFlowStepUse = true;
+    }
+
+// Get the pressure trips that go with the flow steps
+    setting = config_lookup(&cfg,"Setting.FlowSteps");
+    if(setting != NULL)
+    {
+        count = config_setting_length(setting);
+        for(i = 0; i < count; ++i)
+        {
+            config_setting_t *FS = config_setting_get_elem(setting, i);
+            double Press, PumpV;
+            
+            if (!(config_setting_lookup_float(FS,"Press",&Press)
+                && config_setting_lookup_float(FS,"PumpV",&PumpV)))
+            {
+                gFlowStep.Step[i].Press = 0;
+                gFlowStep.Step[i].PumpV =  gAO_Data.ao[1].set_V ;
+            }
+            else
+            {
+                gFlowStep.Step[i].Press = Press;
+                gFlowStep.Step[i].PumpV = PumpV;
+            }
+        }
+        gFlowSteps = i+1;
+    }
+    
 //Get the Serial settings: Port 1 is Status, Port 2 is full data.
     setting = config_lookup(&cfg, "Setting.Serial_Port");
     if(setting != NULL)
@@ -1495,9 +1559,10 @@ void makeFileNames(void)
     strcat(gPeakFShort,"Peak_");
     strcat(gPeakFile, gDatestamp);
     strcat(gPeakFShort, gDatestamp);
-    strcat(gPeakFile, gDatestamp);
     strcat(gPeakFile, ver);
     strcat(gPeakFile, ".b");
+    strcat(gPeakFShort, ver);
+    strcat(gPeakFShort, ".b");
 
     strcat(gLogFile, FileAddr);
     strcat(gLogFile, "Log_");
@@ -2272,18 +2337,25 @@ void Calc_WidthSTD(void)
 {
     double var;
     int i;
-    
-    for ( i =0; i< gArray_Size; i++)
+    if (gArray_Size > 5) 
     {
-        gAW += gData.peak[i].w;
-    }
-    gAW =gAW/gArray_Size;
+        for ( i =0; i< gArray_Size; i++)
+        {
+            gAW += gData.peak[i].w;
+        }
+        gAW =gAW/gArray_Size;
     
-    for (i = 0; i < gArray_Size; i++)
-    {
-        var += (gData.peak[i].w-gAW)*(gData.peak[i].w-gAW);
+        for (i = 0; i < gArray_Size; i++)
+        {
+            var += (gData.peak[i].w-gAW)*(gData.peak[i].w-gAW);
+        }
+        gWidthSTD = sqrt(var/(gArray_Size-1));
     }
-    gWidthSTD = sqrt(var/(gArray_Size-1));
+    else 
+    {
+        gAW = 0;
+        gWidthSTD = 0;
+    }
     
     return;
 }
@@ -2572,7 +2644,52 @@ int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval 
 
 //******************************************************************************
 //
-//  Aet_AO
+//  CheckFlowStep
+//
+//  Check the pressure and adjust the flow voltage if necessary
+//
+//******************************************************************************
+void CheckFlowStep(void)
+{
+    int i, oldFlag, newFlag;
+    double OldPumpV, NewPumpV;
+    OldPumpV = gAO_Data.ao[1].set_V;
+    oldFlag = gFlowFlag;
+    NewPumpV = OldPumpV;
+    if (P >= 10.)
+    {
+        if (P > gFlowStep.Step[0].Press)            // Start voltage
+        {
+            NewPumpV = gStartFlowV;
+            newFlag = 0;
+        }
+        for(i=0; i< (gFlowSteps-2); i++)            // intermediate pressure/voltage
+        {
+            if((P <= gFlowStep.Step[i].Press) && (P > gFlowStep.Step[i+1].Press))
+            {
+                NewPumpV = gFlowStep.Step[i].PumpV;
+                newFlag = i+1;
+            }
+        }
+        if (P<= gFlowStep.Step[i].Press)            // last pressure/voltage
+        {
+            NewPumpV = gFlowStep.Step[i].PumpV;
+            newFlag = i+1;
+        }
+    }
+    
+    if(oldFlag != newFlag)
+    {
+        gFlowFlag = newFlag;
+        gAO_Data.ao[1].set_V = NewPumpV;
+        Set_AO(1,0);
+    }
+    
+    return;
+}
+//******************************************************************************
+//
+//  Set_AO
 //
 //  Set an AO using the MAX5802 on the i2c2 bus (/dev/i2c1)
 //
