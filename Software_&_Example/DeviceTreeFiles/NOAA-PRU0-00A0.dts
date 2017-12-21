@@ -1,0 +1,54 @@
+/* PRU0 pins for parallel digital data.*/
+
+/dts-v1/;
+/plugin/;
+
+/ 
+{
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+	part-number = "NOAA-PRU0";
+	version = "00A0";
+	
+	exclusive-use = 
+	
+		"P9.25",
+		"P9.41",
+		"P9.27",
+		"P9.42",
+		"P9.28",
+		"P9.30",
+		"P9.29",
+		"P9.31",
+	   "pru0";
+
+	fragment@0 
+	   {
+		target = <&am33xx_pinmux>;
+
+		__overlay__ 
+		   {
+			pru_pru_pins: pinmux_pru_pru_pins 
+			   {
+				   pinctrl-single,pins = <
+				      0x1ac 0x26   // pr1_pru0_pru_r31_7 | fast, input, pulldown, enable, mode 6 | bit 0
+				      0x1a8 0x26   // pr1_pru0_pru_r31_6 | fast, input, pulldown, enable, mode 6 | bit 1
+				      0x1a4 0x26   // pr1_pru0_pru_r31_5 | fast, input, pulldown, enable, mode 6 | bit 2  
+				      0x1a0 0x26   // pr1_pru0_pru_r31_4 | fast, input, pulldown, enable, mode 6 | bit 3
+				      0x19c 0x26   // pr1_pru0_pru_r31_3 | fast, input, pulldown, enable, mode 6 | bit 4
+				      0x198 0x26   // pr1_pru0_pru_r31_2 | fast, input, pulldown, enable, mode 6 | bit 5
+				      0x194 0x26   // pr1_pru0_pru_r31_1 | fast, input, pulldown, enable, mode 6 | bit 6
+				      0x190 0x26   // pr1_pru0_pru_r31_0 | fast, input, pulldown, enable, mode 6 | bit 7
+				   >;
+			   };
+		   };
+	   };
+   fragment@1 {         // Enable the PRUSS
+      target = <&pruss>;
+      __overlay__ {
+         status = "okay";
+         pinctrl-names = "default";
+         pinctrl-0 = <&pru_pru_pins>;
+      };
+   };
+
+};

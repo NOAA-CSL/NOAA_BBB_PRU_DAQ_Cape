@@ -1,0 +1,44 @@
+/dts-v1/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+	part-number = "NOAA-UART1";
+	version = "00A0";
+	exclusive-use = "P9.26", "P9.24", "uart1";
+
+	fragment@0 {
+		target = <0xdeadbeef>;
+
+		__overlay__ {
+
+			pinmux_bb_uart1_pins {
+				pinctrl-single,pins = <0x180 0x20 0x184 0x00>;
+				linux,phandle = <0x1>;
+				phandle = <0x1>;
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <0xdeadbeef>;
+
+		__overlay__ {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <0x1>;
+		};
+	};
+
+	__symbols__ {
+		bb_uart1_pins = "/fragment@0/__overlay__/pinmux_bb_uart1_pins";
+	};
+
+	__fixups__ {
+		am33xx_pinmux = "/fragment@0:target:0";
+		uart2 = "/fragment@1:target:0";
+	};
+
+	__local_fixups__ {
+		fixup = "/fragment@1/__overlay__:pinctrl-0:0";
+	};
+};
