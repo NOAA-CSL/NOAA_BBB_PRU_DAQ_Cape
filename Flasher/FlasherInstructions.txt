@@ -1,0 +1,18 @@
+Creating an EMMC flasher on a uSD card:
+
+1. FAT 16 format the uSD card.
+    - Open the command window and enter "diskpart"
+    - Select the uSD card as the disk with "select disk#"
+    *** Be absolutely sure not to select the hard drive!!!***
+    - Enter "clean" after the uSD card is selected
+    - Leave the cmd prompt open
+    - Create a partition of exactly 4048 MB and format it FAT16
+    - Go back to diskpartition, enter "select partition 1"
+    - Enter "active"
+2. Create a folder "dtbs" using explorer
+    - Down load the zip file: "https://s3.amazonaws.com/beagle/beagleboneblack-save-emmc.zip"
+    - Upzip the file onto the uSD card.
+    - Copy am335x-boneblack.dtb into the dtbs folder
+3. Look at the file "autorun.sh". The first section is to backup a BeagleBone Black, and
+   the second part is to flash the image that was created in the first part. Edit this file
+   for the step you are performing.   
