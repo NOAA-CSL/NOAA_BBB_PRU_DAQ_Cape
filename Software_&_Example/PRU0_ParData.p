@@ -20,6 +20,10 @@ MOV r0, 0x00000000                   // r0 is the register offset, leave at 0
 #define PRU_EVTOUT_0    3           // The event number that is sent - complete
 
 START:
+
+//    MOV r1, 0x00026034              // Enable the scratch pad with PRU1 priority
+//    MOV r2, 0x00000003
+//    SBBO r2, r1, 0, 4
     
     MOV r0, 0x00000000              // r0 is the register offset, leave at 0
     MOV r1, 0x00000000
@@ -34,5 +38,5 @@ CHECK_DATA:
     JMP CHECK_DATA
     
 END:
-    MOV	 R31.b0, PRU1_R31_VEC_VALID | PRU_EVTOUT_0   // Notify Halt
-    HALT                                             // Halt the program
+	MOV	R31.b0, PRU1_R31_VEC_VALID | PRU_EVTOUT_0   // Notify Halt
+    HALT                                            // Halt the program

@@ -1,7 +1,7 @@
 // PRU1_All_dt.p program to read DR (data ready), OU (over/under flow), 
 // and read the low byte of the data.
 // Does the analysis for peak points. Peak >= 5 points and
-// peak < 255 points
+// peak < 255 points (This is now adjustable).
 // Also reads the Power Off bit for shutdown.
 // Enables and reads the cycle count to used to calculate a particle dt.
 // 
@@ -85,6 +85,8 @@ START:
     MOV r19, 0x00000000             // Stop value 0x0000 run, 0xFFFF Stop
     MOV r20, 0x00000000             // Take data CMD register .t0 take data, .t1 STOP
     MOV r21, 0x00000000             // Data register for high byte from PRU0
+    MOV r24, 0x00000410             // Address for min and max number of points
+    MOV r25, 0x00FF0005             // default value of max (FF) and min (5)
     
 ENABLE_CYCT:  
     MOV r22, CTRL                   // Set to CTRL address
@@ -102,6 +104,7 @@ SETPEAKPTR:
 READ_BLTH:                          // Get the latest Baseline + threshold value
     LBBO r1.w2, r8, 0, 2            // BLTH
     LBBO r1.w0, r9, 0, 2            // BL
+    LBBO r25, r24, 0, 4              // Get the min and max # of points per peak
 
 WAIT_NDR1:                          // Wait for data not ready (LOW)
     QBBS WAIT_NDR1, R31.t8
@@ -157,8 +160,8 @@ SET_MAX:
     
 WRITE_PK: 
     CLR r5.t0                       // end of peak
-    QBGT READ_BLTH, r2.w2, 5        // not enough points
-    QBLT READ_BLTH, r2.w2, 255      // too many points
+    QBGT READ_BLTH, r2.w2, r25.w0   // not enough points
+    QBLT READ_BLTH, r2.w2, r25.w2   // too many points
     LBBO r23, r22, 0, 4             // Get the control register value
     CLR r23, 3                      // Disable the cycle count
     SBBO r23, r22, 0, 4             // Send Disable out

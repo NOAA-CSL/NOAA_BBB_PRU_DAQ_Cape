@@ -27,7 +27,6 @@
 //  3.0 Merge various versions of the POPS program to function on balloons, UAV, 
 //  Manta, WB57, etc with writing to either the uSD or usb drive. Config file 
 //  must be on the uSD card.
-//  4.0 Allows different flow rates to be set with a pressure trip.
 */
 /*DISCLAIMER
 ----------------------------------------------
@@ -618,7 +617,9 @@ void main()
     {
         pruSharedMem_int[i] = 0x00000000;
     }
-
+    
+    pru1DRAM_int[260] = ((gMaxPeakPts << 16) | gMinPeakPts); // set the value in memory
+    
     strcat(gMessage,"\tPRUs initialized.\n");
 
 //*****************************
@@ -2337,25 +2338,18 @@ void Calc_WidthSTD(void)
 {
     double var;
     int i;
-    if (gArray_Size > 5) 
-    {
-        for ( i =0; i< gArray_Size; i++)
-        {
-            gAW += gData.peak[i].w;
-        }
-        gAW =gAW/gArray_Size;
     
-        for (i = 0; i < gArray_Size; i++)
-        {
-            var += (gData.peak[i].w-gAW)*(gData.peak[i].w-gAW);
-        }
-        gWidthSTD = sqrt(var/(gArray_Size-1));
-    }
-    else 
+    for ( i =0; i< gArray_Size; i++)
     {
-        gAW = 0;
-        gWidthSTD = 0;
+        gAW += gData.peak[i].w;
     }
+    gAW =gAW/gArray_Size;
+    
+    for (i = 0; i < gArray_Size; i++)
+    {
+        var += (gData.peak[i].w-gAW)*(gData.peak[i].w-gAW);
+    }
+    gWidthSTD = sqrt(var/(gArray_Size-1));
     
     return;
 }
@@ -2511,8 +2505,16 @@ void Implement_CMD(int source)
         if (!strcmp(CMD, "logmin"))     gBins.logmin = value;
         if (!strcmp(CMD, "logmax"))     gBins.logmax = value;
         if (!strcmp(CMD, "TH_mult"))    gTH_Mult =  value;
-        if (!strcmp(CMD, "MaxPts"))     gMaxPeakPts = (int) value;
-        if (!strcmp(CMD, "MinPts"))     gMinPeakPts = (int) value;
+        if (!strcmp(CMD, "MaxPts"))     
+        {
+            gMaxPeakPts = (int) value;
+            pru1DRAM_int[260] = ((gMaxPeakPts <<16) | gMinPeakPts);
+        }
+        if (!strcmp(CMD, "MinPts"))
+        {
+            gMinPeakPts = (int) value;
+            pru1DRAM_int[260] = ((gMaxPeakPts <<16) | gMinPeakPts);
+        }    
         if (!strcmp(CMD, "AO0"))
         {
             gAO_Data.ao[0].set_V = value;
