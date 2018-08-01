@@ -2343,13 +2343,15 @@ void Calc_WidthSTD(void)
     {
         gAW += gData.peak[i].w;
     }
-    gAW =gAW/gArray_Size;
+    if(gArray_Size > 0) gAW =gAW/gArray_Size;
+    else gAW = 0;	
     
     for (i = 0; i < gArray_Size; i++)
     {
         var += (gData.peak[i].w-gAW)*(gData.peak[i].w-gAW);
     }
-    gWidthSTD = sqrt(var/(gArray_Size-1));
+    if(gArray_Size > 2) gWidthSTD = sqrt(var/(gArray_Size-1));
+    else gWidthSTD = 0;	
     
     return;
 }
